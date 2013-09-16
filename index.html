@@ -1,76 +1,343 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <title>Crossed by lo-th</title>
-  </head>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1 Tiny//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd">
+<html lang="en">
+	<head>
+		<title>Fish bursting game</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style type="text/css">
+			body {
+				margin: 0px;
+				overflow: hidden;
+			}
 
-  <body>
-    <div id="container">
-      <div class="inner">
+			.parallax {
+				position : absolute;
+				display : block; 
+				width : 256px; 
+				height : 384px;
+				-webkit-transform-origin : 0px 0px;
+				-moz-transform-origin : 0px 0px;
+				-ms-transform-origin : 0px 0px;
+				-o-transform-origin : 0px 0px;
+				transform-origin : 0px 0px;
+			}
+			
+			.container {
+				
+				position : absolute; 
+				display : block; 
+				-webkit-transform-style: preserve-3d;
+				-webkit-transform : translateZ(0px);
+				-moz-transform : translateZ(0px);
+				-moz-transform-style: preserve-3d;
+				-o-transform : translateZ(0px);
+				-o-transform-style: preserve-3d;
+				transform : translateZ(0px);
+				transform-style: preserve-3d; 
 
-        <header>
-          <h1>Crossed</h1>
-          <h2>minimal game test on all navigator</h2>
-        </header>
+				overflow : hidden;
+				pointer-events :none;
+			}
 
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/lo-th/crossed/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/lo-th/crossed/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/lo-th/crossed" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
+			.info {
+				position : absolute;
+				display : block; 
+				color : #ffffff;
+				-webkit-transform-origin : 0px 0px;
+				-moz-transform-origin : 0px 0px;
+				-ms-transform-origin : 0px 0px;
+				-o-transform-origin : 0px 0px;
+				transform-origin : 0px 0px;
+			}
 
-        <hr>
+			.svg {
+				position : absolute;
+				display : block; 
+				width : 256px; 
+				height : 20px; 
+			}
+		
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript" src="js/Fish.js"></script>
+		<script type="text/javascript" src="js/Particles.js"></script>
+		<script type="text/javascript" src="js/MathTools.js"></script>
+		<script type="text/javascript" >
+		
+			
+			// DOM elements
+			var browser = navigator.appName.toLowerCase();
+			var xmlns = "http://www.w3.org/2000/svg";
+			var tools = new MathTools();
 
-        <section id="main_content">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+			var container =	document.createElement('div'),
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+				layer1 = document.createElement('div'),
+				layer2 = document.createElement('div'),
+				info = document.createElement('div'),
+				svg =  document.createElementNS (xmlns, "svg"),
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+			// screen size variables
+				SCREEN_WIDTH = 768,
+				SCREEN_HEIGHT = 576,
+				HALF_WIDTH = SCREEN_WIDTH / 2,
+				HALF_HEIGHT = SCREEN_HEIGHT / 2,
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+			// fish variables
+				fishes = [],
+				spareFishes = [],
+	
+				counter = 0, 
+				burstSound, 
+ 
+			// the particle emitter
+			 	emitter = new Emitter(container); 
+	
+		
+			initSounds(); 	
+			
+			// set up the CSS for the DOM elements
+			layer1.className = "parallax"; 
+			layer1.style.background = 'url(img/parallaxBack.jpg)'; 
+			/*layer1.style.width = SCREEN_WIDTH+"px";
+			layer1.style.height = SCREEN_HEIGHT+"px";
+			layer1.style.position = 'absolute';
+			layer1.style.display = 'block';*/
+			
+			//document.body.appendChild(layer1); 
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+			layer2.className = "parallax"; 
+			layer2.style.background = 'url(img/parallaxFront.png) transparent'; 
+			//layer2.style.width = SCREEN_WIDTH+"px";
+			//layer2.style.height = SCREEN_HEIGHT+"px";
+			//document.body.appendChild(layer2); 
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+			
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+			
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+			container.className = "container"; 
+			container.style.webkitPerspective= "400";
+			container.style.webkitPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
+			
+			container.style.MozPerspective= "400";
+			container.style.MozPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+			container.style.oPerspective= "400";
+			container.style.oPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+			container.style.perspective= "400";
+			container.style.perspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
+			container.style.width = SCREEN_WIDTH; 
+			container.style.height = SCREEN_HEIGHT; 
+			container.style.top = '20px'; 
+			container.style.left = '20px';
 
-        <footer>
-          Crossed is maintained by <a href="https://github.com/lo-th">lo-th</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
+			document.body.appendChild(container); 
+			container.appendChild(layer1); 
+			container.appendChild(layer2);
+			//window.addEventListener("load", init); 
 
-        
-      </div>
-    </div>
-  </body>
+			info.className = "info"; 
+			info.innerHTML =  browser; //+ ' '+ version; 
+			document.body.appendChild(info); 
+
+			svg.className = "svg";
+			info.appendChild(svg);
+			info.style.top = '20px'; 
+			info.style.left = '20px';
+
+			// "circle" may be any tag name
+			var shape = document.createElementNS(xmlns, "circle");
+			// Set any attributes as desired
+			shape.setAttribute("cx", 25);
+			shape.setAttribute("cy", 25);
+			shape.setAttribute("r",  20);
+			shape.setAttribute("fill", "red");
+			svg.appendChild(shape);
+
+			function init() {
+				initMouseListeners(); 
+				setInterval(gameLoop, 1000/60); 
+			}
+			
+			function gameLoop() {
+
+				// every 20 frames, make a new fish
+				if(counter++%20==0)
+					makeFish();	
+	
+				// update the parallax layers
+				//layer1.style.webkitTransform = "translate3d(0px, "+(-768 +((counter*5)%768))+"px, -999px) scale(4)"; 				
+				//layer2.style.webkitTransform  = "translate3d(0px, "+(-768 +((counter*10)%768))+"px, -998px) scale(4)"; 
+
+				layer1.style.webkitTransform = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*5)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 				
+				layer2.style.webkitTransform  = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*10)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 
+
+				layer1.style.MozTransform = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*5)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 				
+				layer2.style.MozTransform  = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*10)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 
+
+				//layer1.style.MSTransform = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*5)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 				
+				//layer2.style.MSTransform  = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*10)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 
+
+				layer1.style.OTransform = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*5)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 				
+				layer2.style.OTransform  = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*10)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 
+
+				layer1.style.transform = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*5)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 				
+				layer2.style.transform  = "translate3d(0px, "+(-SCREEN_HEIGHT +((counter*10)%SCREEN_HEIGHT))+"px, 0px) scale(3)"; 
+	 
+	 
+			  	// iteratate through each fish
+				for (i=0; i<fishes.length; i++) {
+					var fish = fishes[i]; 
+					if(!fish.enabled) continue; 
+		
+					// update the fishes position properties
+					fish.update();
+		
+					// and then update the visible object for that fish
+					fish.render(); 
+	
+					// if the fish is way off the top of the screen, then 
+					// remove it. For the finished game you would probably 
+					// add some kind of score penalty at this point. 
+					if(fish.posY <-200) removeFish(fish); 
+		
+				}
+
+				// then update all the particles. 
+				emitter.update(); 
+
+			}
+			
+			function makeFish() {
+				var fish;
+				
+				// create a new fish in the bottom middle of the stage
+				if(spareFishes.length>0) {
+					// if one is already in the spare array, recycle it
+					fish = spareFishes.pop(); 	
+					fish.enabled = true; 
+					fish.domElement.style.visibility = "visible"; 
+				} else {
+					// otherwise make a new one
+					// Work out the fishimage URL 
+					var fishImageURL = "img/orangefish0"+((fishes.length % 4) + 1)+".png"; 
+					// and then make a new fish object
+					fish = new Fish(0, 0, 0, fishImageURL, 128, 128); 
+					// add it into the array of fishes
+					fishes.push(fish); 
+	
+					// then add touch and mousedown events to the fish. 
+					fish.domElement.addEventListener("mouseover", fishMouseOver, true); 
+					fish.domElement.addEventListener("touchstart", fishTouched, true); 
+	
+					container.appendChild(fish.domElement);
+				}
+				
+				fish.posX = HALF_WIDTH + tools.randomRange(-250,250); 
+				fish.posY = SCREEN_HEIGHT+100;
+				fish.posZ = tools.randomRange(-250,250);
+
+				// give it a random x and y velocity
+				fish.velX = tools.randomRange(-1,1);
+				fish.velY = tools.randomRange(-1,-2);
+				fish.velZ = tools.randomRange(-1,1);
+
+				fish.size = 1;
+				fish.gravity = -0.05; 
+		
+			}
+			
+			function removeFish(fish) {
+				fish.enabled = false; 
+				fish.domElement.style.visibility = "hidden"; 
+				spareFishes.push(fish);
+			}
+	
+			function fishMouseOver(event) {
+				event.preventDefault(); 
+				var fish = getFishFromElement(event.target); 
+				if(fish) explodeFish(fish); 
+			}
+
+			function fishTouched(event) {
+				event.preventDefault(); 
+				for(var j=0; j<event.changedTouches.length; j++) {
+					var fish = getFishFromElement(event.target); 
+					if(fish) explodeFish(fish); 
+				}
+			}
+	
+			function getFishFromElement(domElement) {
+				for(var i=0; i<fishes.length;i++) {
+					if(fishes[i].domElement == domElement) return fishes[i]; 
+				}
+				return false; 
+			}	
+
+			function explodeFish(fish) {
+				playBurst(); 
+				emitter.makeExplosion(fish.posX, fish.posY, fish.posZ); 
+				removeFish(fish);
+			}
+				
+			function initMouseListeners() {
+				document.addEventListener('mousemove', preventDefault, false);
+				document.addEventListener( 'mousedown', preventDefault, false );
+				document.addEventListener( 'mouseup', preventDefault, false );
+				document.addEventListener( 'touchstart', preventDefault, false );
+				document.addEventListener( 'touchmove', preventDefault, false );
+				document.addEventListener( 'touchend', preventDefault, false );
+			}
+
+			function preventDefault(event) {
+				event.preventDefault(); 
+			}
+			
+			function initSounds() {
+				//burstSound = new Audio("sounds/burstsml2.aif");
+
+				if(browser=="netscape")burstSound = new Audio("sounds/collectgold.ogg");
+				else burstSound = new Audio("sounds/collectgold.mp3");	
+				burstSound.load();
+				// you have to play the sound to make sure it's loaded, otherwise you get 
+				// a glitch the first time you play it
+				burstSound.volume = 0; 
+				burstSound.play(); 
+			
+			}
+			
+			function playBurst() { 
+				var v = burstSound;
+				v.currentTime = 0;
+				v.volume = 1; 
+			    v.play(); 
+			}
+
+			window.onload = init;
+/*
+// collection of sounds that are playing
+var playing={};
+// collection of sounds
+var sounds={step:"knock.ogg",throw:"swing.ogg"};
+
+// function that is used to play sounds
+function player(x)
+{
+    var a,b;
+    b=new Date();
+    a=x+b.getTime();
+    playing[a]=new Audio(sounds[x]);
+    // with this we prevent playing-object from becoming a memory-monster:
+    playing[a].onended=function(){delete playing[a]};
+    playing[a].play();
+}
+player("step");
+*/
+		</script>
+	</body>
 </html>

@@ -363,7 +363,7 @@
 
 			
 			function detectOrientation(){
-			    if(typeof window.onorientationchange != 'undefined'){
+			    if(typeof window.onorientationchange != 'undefined' || typeof screen.onorientationchange != 'undefined'){
 			        if ( orientation == 0 ) { //Do Something In Portrait Mode
 				        info.innerHTML = "Portrait Mode 0";
 			        }
@@ -380,12 +380,13 @@
 			}
 
 			if(typeof window.orientation !== 'undefined') window.onorientationchange = detectOrientation;
+			if(typeof screen.orientation !== 'undefined') screen.onorientationchange  = detectOrientation;
 			window.onload = init;
 
 			var movewait
 			var sizewait
 
-			window.addEventListener('mousemove', function(e){
+			document.addEventListener('mousemove', function(e){
 			    if(typeof movewait != 'undefined'){
 			        clearTimeout(movewait);
 			    }

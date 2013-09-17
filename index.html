@@ -363,8 +363,11 @@
 
 			
 			function detectOrientation(){
-			    if(typeof window.onorientationchange != 'undefined' || typeof screen.onorientationchange != 'undefined'){
-				 info.innerHTML = 'orientation'
+				if(typeof screen.onorientationchange != 'undefined'){
+					info.innerHTML = 'orientation'+  screen.orientation;
+				}
+			    if(typeof window.onorientationchange != 'undefined'){
+				 
 			        if ( orientation == 0 ) { //Do Something In Portrait Mode
 				        info.innerHTML = "Portrait Mode 0";
 			        }

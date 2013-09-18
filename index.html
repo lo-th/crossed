@@ -30,14 +30,21 @@
 		  margin: 0 auto;
 		  padding: 0;
 		}
+		.player {
+				position : absolute; 
+				display : block; 
+				top:0px;
+		}
+		.front {
+			    color:#ffffff;
+				position : absolute; 
+				display : block; 
+				top:0px;
+		}
 	</style>
 </head>
 <body>
 	<div id="content">
-		<div id="back"></div>
-		<div id="front">hello</div>
-		<div id="player"></div>
-		<div id="top"></div>
 		<ul id="scene" class="scene">
 			<li class="layer" data-depth="1.00"><img src="img/layer1.svg"></li>
 			<li class="layer" data-depth="0.80"><img src="img/layer2.svg"></li>
@@ -46,22 +53,113 @@
 			<li class="layer" data-depth="0.20"><img src="img/layer5.svg"></li>
 			<li class="layer" data-depth="0.00"><img src="img/layer6.svg"></li>
 		</ul>
+		<div id="player" class="player"></div>
+		<div id="front" class="front">hello</div>
+		
+		<div id="top"></div>
+		
 	</div>
 	<script type="text/javascript" src="js/MathTools.js"></script>
 	<script type="text/javascript" src="js/Crossed.js"></script>
 	<script type="text/javascript" src="js/parallax.js"></script>
+	<script type="text/javascript" src="js/Fish.js"></script>
 	<script type="text/javascript">
 	    var tools = new MathTools();
+	    var container = document.getElementById('player');
 	    var crossed = new Crossed();
 	   // crossed.init();
 
 	    var scene = document.getElementById('scene');
+	    var HALF_WIDTH = (window.innerWidth*0.5); 
 	var parallax = new Parallax(scene);
 	//parallax.calibrate(false, true);
 	//parallax.invert(false, true);
 	//parallax.limit(false, 10);
 	parallax.scalar(20, 20);
 	parallax.friction(0.8, 0.8);
+
+    var fishes = [], spareFishes = [], counter = 0;
+
+    function init() {
+		setInterval(gameLoop, 1000/60); 
+	}
+	function gameLoop() {
+
+				// every 20 frames, make a new fish
+				if(counter++%20==0)
+					makeFish();	
+	
+			  	// iteratate through each fish
+				for (i=0; i<fishes.length; i++) {
+					var fish = fishes[i]; 
+					if(!fish.enabled) continue; 
+		
+					// update the fishes position properties
+					fish.update();
+		
+					// and then update the visible object for that fish
+					fish.render(); 
+	
+					// if the fish is way off the top of the screen, then 
+					// remove it. For the finished game you would probably 
+					// add some kind of score penalty at this point. 
+					if(fish.posY <-200) removeFish(fish); 
+		
+				}
+
+				// then update all the particles. 
+				//emitter.update(); 
+
+	}
+
+
+	function makeFish() {
+		HALF_WIDTH = (window.innerWidth*0.5)
+		var fish;
+		
+		// create a new fish in the bottom middle of the stage
+		if(spareFishes.length>0) {
+			// if one is already in the spare array, recycle it
+			fish = spareFishes.pop(); 	
+			fish.enabled = true; 
+			fish.domElement.style.visibility = "visible"; 
+		} else {
+			// otherwise make a new one
+			// Work out the fishimage URL 
+			var fishImageURL = "img/fish0"+((fishes.length % 4) + 1)+".svg"; 
+			// and then make a new fish object
+			fish = new Fish(0, 0, 0, fishImageURL, 128, 128); 
+			// add it into the array of fishes
+			fishes.push(fish); 
+
+			// then add touch and mousedown events to the fish. 
+			//fish.domElement.addEventListener("mouseover", fishMouseOver, true); 
+			//fish.domElement.addEventListener("touchstart", fishTouched, true); 
+
+			container.appendChild(fish.domElement);
+		}
+		
+		fish.posX = HALF_WIDTH + tools.randomRange(-250,250); 
+		fish.posY = window.innerHeight+100;
+		fish.posZ = tools.randomRange(-250,250);
+
+		// give it a random x and y velocity
+		fish.velX = tools.randomRange(-1,1);
+		fish.velY = tools.randomRange(-1,-2);
+		fish.velZ = tools.randomRange(-1,1);
+
+		fish.size = 1;
+		fish.gravity = -0.05; 
+
+	}
+	
+	function removeFish(fish) {
+		fish.enabled = false; 
+		fish.domElement.style.visibility = "hidden"; 
+		spareFishes.push(fish);
+	}
+
+window.addEventListener("load", init); 
 	</script>
 	
 </body>

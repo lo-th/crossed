@@ -63,10 +63,12 @@
 	<script type="text/javascript" src="js/Crossed.js"></script>
 	<script type="text/javascript" src="js/parallax.js"></script>
 	<script type="text/javascript" src="js/Fish.js"></script>
+	<script type="text/javascript" src="js/Particles.js"></script>
 	<script type="text/javascript">
 	    var tools = new MathTools();
 	    var container = document.getElementById('player');
 	    var crossed = new Crossed();
+	    var emitter = new Emitter(container); 
 	   // crossed.init();
 
 	    var scene = document.getElementById('scene');
@@ -81,6 +83,7 @@
     var fishes = [], spareFishes = [], counter = 0;
 
     function init() {
+    	initMouseListeners(); 
 		setInterval(gameLoop, 1000/60); 
 	}
 	function gameLoop() {
@@ -108,7 +111,7 @@
 				}
 
 				// then update all the particles. 
-				//emitter.update(); 
+				emitter.update(); 
 
 	}
 
@@ -134,8 +137,8 @@
 			fishes.push(fish); 
 
 			// then add touch and mousedown events to the fish. 
-			//fish.domElement.addEventListener("mouseover", fishMouseOver, true); 
-			//fish.domElement.addEventListener("touchstart", fishTouched, true); 
+			fish.domElement.addEventListener("mouseover", fishMouseOver, true); 
+			fish.domElement.addEventListener("touchstart", fishTouched, true); 
 
 			container.appendChild(fish.domElement);
 		}
@@ -159,6 +162,46 @@
 		fish.domElement.style.visibility = "hidden"; 
 		spareFishes.push(fish);
 	}
+
+	function fishMouseOver(event) {
+		event.preventDefault(); 
+		var fish = getFishFromElement(event.target); 
+		if(fish) explodeFish(fish); 
+	}
+
+	function fishTouched(event) {
+		event.preventDefault(); 
+		for(var j=0; j<event.changedTouches.length; j++) {
+			var fish = getFishFromElement(event.target); 
+			if(fish) explodeFish(fish); 
+		}
+	}
+
+	function getFishFromElement(domElement) {
+		for(var i=0; i<fishes.length;i++) {
+			if(fishes[i].domElement == domElement) return fishes[i]; 
+		}
+		return false; 
+	}	
+
+	function explodeFish(fish) {
+		//playBurst(); 
+		emitter.makeExplosion(fish.posX, fish.posY, fish.posZ); 
+		removeFish(fish);
+	}
+
+	function initMouseListeners() {
+		document.addEventListener('mousemove', preventDefault, false);
+		document.addEventListener( 'mousedown', preventDefault, false );
+		document.addEventListener( 'mouseup', preventDefault, false );
+		document.addEventListener( 'touchstart', preventDefault, false );
+		document.addEventListener( 'touchmove', preventDefault, false );
+		document.addEventListener( 'touchend', preventDefault, false );
+	}
+	function preventDefault(event) {
+				event.preventDefault(); 
+			}
+		
 
 window.addEventListener("load", init); 
 	</script>

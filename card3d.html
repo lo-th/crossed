@@ -70,6 +70,24 @@ document.getElementById('container').style.perspective=value;
 document.getElementById('persp').innerHTML=value;
 }
 
+detectOrientation();
+window.onorientationchange = detectOrientation;
+function detectOrientation(){
+    if(typeof window.onorientationchange != 'undefined'){
+        if ( orientation == 0 ) {
+            //Do Something In Portrait Mode
+        }
+        else if ( orientation == 90 ) {
+            //Do Something In Landscape Mode
+        }
+        else if ( orientation == -90 ) {
+            //Do Something In Landscape Mode
+        }
+        else if ( orientation == 180 ) {
+            //Do Something In Landscape Mode
+        }
+    }
+}
 </script>
 </head>
 

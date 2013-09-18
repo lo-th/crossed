@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Crossed Game</title>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<style type="text/css">
+		body {
+			margin: 0px;
+			overflow: hidden;
+			background: #363636;
+			-ms-high-contrast-adjust: none;
+		}
+		#content {
+			width:256px;
+			height:64px;
+			position:absolute;
+			display:block;
+		}
+	</style>
+</head>
+<body>
+	<div id="content">
+	    <div id="bg"></div>
+	    <div id="anim"></div>
+    </div>
+	<script type="text/javascript">
+	    var content = document.getElementById('content');
+	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 20 });
+		//var test = new SpriteAnim({ x:80, y:0, w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 30 });
+		var t = [];
+
+		for(var i=0; i<20; i++){
+			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim"+i, speed : rand(5, 15) });
+		}
+
+		window.addEventListener("resize", ScaleContent); 
+		ScaleContent();
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
+
+	  	function SpriteAnim (options) {
+			var timerId, i = 0;
+			var element = document.createElement('div');
+			element.className = options.elementId;
+			content.appendChild(element);
+			//var element = document.getElementById(options.elementId);
+			element.style.width = options.w + "px";
+			element.style.height = options.h + "px";
+			element.style.backgroundRepeat = "repeat-x";
+			element.style.top = options.y + "px";
+			element.style.left = options.x + "px"; 
+			element.style.position = "absolute";
+			element.style.display = "block";
+			element.style.background = "url(" + options.sprite + ") transparent";
+
+			if(options.frames!=0){ // sprite anim
+				timerId = setInterval(function () {
+				    if (i >= options.frames) { i = 0; }
+				    element.style.backgroundPosition = i * options.w + "px 0px";
+				    i++;
+				}, options.speed);
+		    } else { // scrolling
+		    	timerId = setInterval(function () {
+			    if (i >= options.w) { i = 0; }
+			    element.style.backgroundPosition = -i + "px 0px";
+			    i++;
+			    }, options.speed);
+		    }
+
+			this.stopAnimation = function () {
+			    clearInterval(timerId);
+			};
+		}
+
+		function ScaleContent () {
+			
+			var sx = (window.innerWidth-20)/256;
+			var sy = (window.innerHeight-20)/64;
+			var Trans = "translate(10px,10px) scale("+sx+","+sx+")";
+			content.style.webkitTransform =Trans;
+			content.style.msTransform = Trans;
+			content.style.transform= Trans;
+			var origine = "0px 0px";
+
+			content.style.webkitTransformOrigin = origine;
+	        content.style.msTransformOrigin = origine;
+	        content.style.transformOrigin = origine; 
+		}
+
+	</script>
+</body>
+</html>

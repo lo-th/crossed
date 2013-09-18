@@ -10,6 +10,7 @@
 			margin: 0px;
 			overflow: hidden;
 			background: #190000;
+			-ms-high-contrast-adjust: none;
 		}
 		#content {
 			background-image: url(img/bg.svg);
@@ -19,6 +20,8 @@
 			position: absolute;
 			width: 100%;
 			height: 100%; 
+			-ms-perspective: 1000;
+			perspective: 1000;
 		}
 		img {
 		  display: block;
@@ -42,10 +45,13 @@
 				-webkit-transform : translateZ(0px);
 				-moz-transform : translateZ(0px);
 				-moz-transform-style: preserve-3d;
+				-ms-transform : translateZ(0px);
+				-ms-transform-style: preserve-3d;
 				-o-transform : translateZ(0px);
 				-o-transform-style: preserve-3d;
 				transform : translateZ(0px);
 				transform-style: preserve-3d;
+
 				pointer-events :none;
 		}
 		.front {
@@ -65,7 +71,7 @@
 			<li class="layer" data-depth="0.60"><img src="img/layer3.svg"></li>
 			<li class="layer" data-depth="0.40"><img src="img/layer4.svg"></li>
 			<li class="layer" data-depth="0.20"><img src="img/layer5.svg"></li>
-			<li class="layer" data-depth="0.00"><img src="img/layer6.svg"></li>
+			<li class="layer" data-depth="0.10"><img src="img/layer6.svg"></li>
 		</ul>
 		<div id="player" class="player"></div>
 		<div id="front" class="front">hello</div>

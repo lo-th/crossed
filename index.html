@@ -29,17 +29,31 @@
 		  max-width: 700px;
 		  margin: 0 auto;
 		  padding: 0;
+		  pointer-events :none;
+		}
+		.layer {
+		  pointer-events :none;
 		}
 		.player {
 				position : absolute; 
 				display : block; 
 				top:0px;
+				-webkit-transform-style: preserve-3d;
+				-webkit-transform : translateZ(0px);
+				-moz-transform : translateZ(0px);
+				-moz-transform-style: preserve-3d;
+				-o-transform : translateZ(0px);
+				-o-transform-style: preserve-3d;
+				transform : translateZ(0px);
+				transform-style: preserve-3d;
+				pointer-events :none;
 		}
 		.front {
 			    color:#ffffff;
 				position : absolute; 
 				display : block; 
 				top:0px;
+				pointer-events :none;
 		}
 	</style>
 </head>
@@ -73,6 +87,19 @@
 
 	    var scene = document.getElementById('scene');
 	    var HALF_WIDTH = (window.innerWidth*0.5); 
+	     var HALF_HEIGHT = (window.innerHeight*0.5);
+
+	     container.style.webkitPerspective= "400";
+			container.style.webkitPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
+			
+			container.style.MozPerspective= "400";
+			container.style.MozPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
+
+			container.style.oPerspective= "400";
+			container.style.oPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
+
+			container.style.perspective= "400";
+			container.style.perspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
 	var parallax = new Parallax(scene);
 	//parallax.calibrate(false, true);
 	//parallax.invert(false, true);

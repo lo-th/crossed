@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Pixi Animation</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background: #333333;
+		}
+		
+		.textHolder{
+			width: 400px;
+		}
+		#info {
+			left: 10px;
+			top: 10px;
+			width: 100%;
+			position:absolute;
+			display:block;
+			color : #cccccc; 
+			font-size:12px;
+			font-weight: bold;
+			font-family: 'Segoe UI';
+		}
+		h3 {
+			display:inline; 
+		}
+		a {
+			color:#ff9933; text-decoration:none;
+		}
+	</style>
+	<script src="js/pixi.js"></script>
+</head>
+<body>
+	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3></div>
+	<script>
+	var t = [], tmax;
+	var bg = [], bgmax;
+	// create an new instance of a pixi stage
+	var stage = new PIXI.Stage(0x333333, true);
+	
+	// create a renderer instance
+	//var renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null);
+	var renderer = PIXI.autoDetectRenderer(256*4, 128*4, null);
+	
+	// add the renderer view element to the DOM
+	document.body.appendChild(renderer.view);
+	renderer.view.style.position = "absolute";
+	renderer.view.style.top = "40px";
+	renderer.view.style.left = "10px";
+	
+	requestAnimFrame( animate );
+	window.addEventListener("resize", resize);
+	resize();
+
+	bg[0] = new addScroll("img/bg-1.png", 1);
+	bg[1] = new addScroll("img/bg-2.png", 2);
+	bg[2] = new addScroll("img/bg-3.png", 3);
+	bg[3] = new addScroll("img/bg-4.png", 4);
+	bgmax = bg.length;
+	tmax = t.length;
+
+
+	function animate() {
+	
+	    requestAnimFrame( animate );
+
+		var i;
+		for(i=0; i<bgmax; i++){
+			bg[i].update();
+		}
+		
+
+	    renderer.render(stage);
+
+	}
+
+	function addScroll(src, speed) {
+		this.speed = speed;
+		var texture = PIXI.Texture.fromImage(src);
+		this.tiling = new PIXI.TilingSprite(texture, 256*4, 128*4);
+		this.tiling.tileScale.x = 4;
+		this.tiling.tileScale.y = 4;
+		stage.addChild(this.tiling);
+
+		this.update = function () {
+			this.tiling.tilePosition.x -= this.speed;
+		}
+	}
+
+	function resize() {
+		renderer.view.style.width = window.innerWidth-20+"px";
+	}
+
+/*
+	// create a texture from an image path
+	var texture = PIXI.Texture.fromImage("img/orangefish01.png");
+	
+	for (var i=0; i < 100; i++) 
+	{
+		createBunny(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+
+
+	};
+	
+	
+	function createBunny(x, y)
+	{
+		// create our little bunny friend..
+		var bunny = new PIXI.Sprite(texture);
+		//	bunny.width = 300;
+		// enable the bunny to be interactive.. this will allow it to respond to mouse and touch events		
+		bunny.interactive = true;
+		// this button mode will mean the hand cursor appears when you rollover the bunny with your mouse
+		bunny.buttonMode = true;
+		
+		// center the bunnys anchor point
+		bunny.anchor.x = 0.5;
+		bunny.anchor.y = 0.5;
+		// make it a bit bigger, so its easier to touch
+		bunny.scale.x = bunny.scale.y = 1;
+		
+		
+		// use the mousedown and touchstart
+		bunny.mousedown = bunny.touchstart = function(data)
+		{
+			// stop the default event...
+			data.originalEvent.preventDefault();
+			
+			// store a refference to the data
+			// The reason for this is because of multitouch
+			// we want to track the movement of this particular touch
+			this.data = data;
+			this.alpha = 0.9;
+			this.dragging = true;
+		};
+		
+		// set the events for when the mouse is released or a touch is released
+		bunny.mouseup = bunny.mouseupoutside = bunny.touchend = bunny.touchendoutside = function(data)
+		{
+			this.alpha = 1
+			this.dragging = false;
+			// set the interaction data to null
+			this.data = null;
+		};
+		
+		// set the callbacks for when the mouse or a touch moves
+		bunny.mousemove = bunny.touchmove = function(data)
+		{
+			if(this.dragging)
+			{
+				// need to get parent coords..
+				var newPosition = this.data.getLocalPosition(this.parent);
+				this.position.x = newPosition.x;
+				this.position.y = newPosition.y;
+			}
+		}
+		
+		// move the sprite to its designated position
+		bunny.position.x = x;
+		bunny.position.y = y;
+		
+		// add it to the stage
+		stage.addChild(bunny);
+	}
+*/
+	</script>
+
+	</body>
+</html>

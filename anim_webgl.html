@@ -38,7 +38,7 @@
 	</style>
 </head>
 <body>
-	<div id="info"> <h3><a href="anim.html">DIV animation</a></h3> vs <h3><a href="anim_canvas.html">CANVAS animation</a></h3> vs <h3><a href="anim_webgl.html" style="color:#3399FF">WEBGL animation</a></h3></div>
+	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html"  style="color:#3399FF">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
 	<div id="content">
 	    <canvas id="theCanvas" width="256" height="128"/>
     </div>
@@ -52,7 +52,8 @@
 
 		window.addEventListener('load', function() {
 			init();
-			setInterval(update, 1000/60);
+			requestAnimationFrame( update );
+			//setInterval(update, 1000/60);
 		});
 
 		var size = {x:256, y:64, dx:512}
@@ -99,6 +100,7 @@
 	  		}*/
 
 		    this.update = function () {
+
 		    	if(this.frames!=0){
 		    		if (this.n >= this.frames) { this.n = 0; }
 		    		ctx.drawImage( this.image, this.n * this.w, 0, this.w, this.w, this.x, this.y, this.w*this.scale, this.w*this.scale);
@@ -118,6 +120,7 @@
 
 
 		function update () {
+			requestAnimationFrame( update );
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			var i;
 			//requestAnimationFrame(update);

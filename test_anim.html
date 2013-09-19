@@ -28,37 +28,38 @@
 <body>
 	<div id="content"></div>
 	<script type="text/javascript">
+	    var t = [], tmax;
+		var bg = [], bgmax;
 	    var content = document.getElementById('content');
-	    content.style.transformStyle = 'preserve-3d';
-	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
-	    var bg2 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
-	    var bg3 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
-		var t = [];
+	    window.addEventListener("resize", ScaleContent);
+	    ScaleContent();
 
-		for(var i=0; i<30; i++){
-			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 1 });
+	    window.addEventListener('load', function() {
+			init();
+			setInterval(update, 1000/60);
+		});
+
+	    var init = function() {
+		    bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
+		    bg[1] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
+		    bg[2] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
+			for(var i=0; i<30; i++){
+				t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 1 });
+			}
+			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
+			bgmax = bg.length;
+	        tmax = t.length;
 		}
 
-		var bg4 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
-
-		var max = t.length;
-
-		window.addEventListener("resize", ScaleContent);
-		setInterval( update, 1000/60); 
-		ScaleContent();
-		update();
-		
-
 		function update () {
+			var i;
 			//requestAnimationFrame(update);
-			bg.update();
-			bg2.update();
-			bg3.update();
-			bg4.update();
-			for(var i=0; i<max; i++){
+			for(i=0; i<bgmax; i++){
+				bg[i].update();
+			}
+			for(i=0; i<tmax; i++){
 				t[i].update();
 			}
-
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };

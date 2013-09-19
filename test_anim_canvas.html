@@ -31,67 +31,37 @@
 	    <canvas id="theCanvas" width="256" height="64"/>
     </div>
 	<script type="text/javascript">
+	    var t = [], tmax;
+		var bg = [], bgmax;
 	    var content = document.getElementById('content');
 	    window.addEventListener("resize", ScaleContent);
-		ScaleContent()
+		ScaleContent();
 
+		window.addEventListener('load', function() {
+			init();
+			setInterval(update, 1000/60);
+		});
 
-/*
-	    var canvas;
-		var canvas2DContext;
-		var imagePlan1 = new Image();
-		var plan1X1 = 0;
-		var plan1X2 = 0;
-
-		var init = function() {
-			canvas = document.getElementById("theCanvas");
-			canvas2DContext = canvas.getContext('2d');
-			imagePlan1.src = "img/bg-1.png";
-			plan1X2 = canvas.width;
-		}
-
-
-		window.addEventListener('load', function() { init(); setInterval(scroll, 1000/60);});
-		;
-
-		function scroll() {
-		  plan1X1 = (plan1X1 + 1) % 512;
-		  plan1X2 = (plan1X2 + 1) % 512;
-		  //plan1X1++;
-		  //plan1X2++;
-		  canvas2DContext.clearRect(0, 0, canvas.width, canvas.height);
-		  canvas2DContext.drawImage(imagePlan1,plan1X1-256,0);
-		  canvas2DContext.drawImage(imagePlan1,plan1X2-256,0);
-		 }
-
-*/
 		var size = {x:256, y:64, dx:512}
 		var canvas;
 		var ctx;
-		var imagePlan1 = new Image();
-		var imagePlan2 = new Image();
-		var imagePlan3 = new Image();
-		var imagePlan4 = new Image();
-		var plan1X1 = 0;
-		var plan1X2 = 0;
-		var plan2X1 = 0;
-		var plan2X2 = 0;
-		var plan3X1 = 0;
-		var plan3X2 = 0;
-		var plan4X1 = 0;
-		var plan4X2 = 0;
 		 
-		var initialisation = function() {
+		var init = function() {
 			canvas = document.getElementById("theCanvas");
 			ctx = canvas.getContext('2d');
-			imagePlan1.src = "img/bg-4.png";
-			imagePlan2.src = "img/bg-3.png";
-			imagePlan3.src = "img/bg-2.png";
-			imagePlan4.src = "img/bg-1.png";
-			plan1X2 = -canvas.width;
-			plan2X2 = -canvas.width;
-			plan3X2 = -canvas.width;
-			plan4X2 = -canvas.width;
+
+			bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
+		    bg[1] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
+		    bg[2] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
+
+			for(var i=0; i<30; i++){
+				t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 1 });
+			}
+			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
+			bgmax = bg.length;
+	        tmax = t.length;
+
+
 		}
 		 
 		function scroll() {
@@ -113,84 +83,54 @@
 		    ctx.drawImage(imagePlan1,plan1X1 + size.x,0);
 		    ctx.drawImage(imagePlan1,plan1X2 + size.x,0);
 		}
-		 
-		window.addEventListener('load', function() {
-			initialisation();
-			setInterval(scroll, 1000/60);
-		});
 
-		/*
-
-	    var content = document.getElementById('content');
-	    content.style.transformStyle = 'preserve-3d';
-	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 20 });
-		//var test = new SpriteAnim({ x:80, y:0, w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 30 });
-		var t = [];
-
-		for(var i=0; i<200; i++){
-			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : rand(5, 15) });
-		}
-
-		var max = t.length;
-
-		window.addEventListener("resize", ScaleContent);
-		setInterval( update, 1000/60); 
-		ScaleContent();
-		update();
-		
-
-		function update () {
-			//requestAnimationFrame(update);
-			bg.update();
-			for(var i=0; i<max; i++){
-				t[i].update();
-			}
-
-		}
-
-		function rand(min, max) { return (Math.random()*(max-min))+min; };
-
-	  	function SpriteAnim (options) {
+		function SpriteAnim (options) {
 	  		this.x = options.x ;
 	  		this.frames = options.frames ;
 	  		this.n = rand(0, this.frames);
 	  		this.w = options.w;
-	  		
-			var timerId, i = 0;
-			this.element = document.createElement('li');
-			this.element.className = options.elementId;
-			content.appendChild(this.element);
-			//var element = document.getElementById(options.elementId);
-			this.element.style.width = options.w + "px";
-			this.element.style.height = options.h + "px";
-			this.element.style.backgroundRepeat = "repeat-x";
-			this.element.style.top = options.y + "px";
-			this.element.style.left = options.x + "px"; 
-			this.element.style.position = "absolute";
-			this.element.style.display = "block";
-			this.element.style.pointerEvents="none";
-			//this.element.style.background = "url(" + options.sprite + ") transparent";
-			this.element.style.background = "url(" + options.sprite + ")";
-			
+	  		this.h = options.h;
+	  		this.speed = options.speed;
+	  		this.image = new Image();
+	  		this.image.src = options.sprite;
+	  		this.y = options.y
+	  		this.x = options.x;
 
-			
 		    this.update = function () {
+
 		    	if(this.frames!=0){
-		    	    if (this.n >= this.frames) { this.n = 0; }
-		    	    this.element.style.backgroundPosition = this.n * this.w + "px 0px";
-				    this.n++;
-				} else {
+		    		if (this.n >= this.frames) { this.n = 0; }
+		    		ctx.drawImage( this.image, this.n * this.w, 0, this.w, this.w, this.x, this.y, this.w, this.w);
+		    		this.n ++;
+		    	} else {
 					if (this.n >= this.w) { this.n = 0; }
-					this.element.style.backgroundPosition = -this.n + "px 0px";
-					this.n++;
+					ctx.drawImage( this.image, 0, 0, this.w, this.h, -this.n, this.y, this.w, this.h);
+					ctx.drawImage( this.image, 0, 0, this.w, this.h, this.w-this.n, this.y, this.w, this.h);
+					this.n += this.speed;
 				}
+				
 			};
 
 			this.stopAnimation = function () {
 			   // clearInterval(timerId);
 			};
 		}
-*/
+
+
+		function update () {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			var i;
+			//requestAnimationFrame(update);
+			for(i=0; i<bgmax-1; i++){
+				bg[i].update();
+			}
+			for(i=0; i<tmax; i++){
+				t[i].update();
+			}
+			bg[3].update();
+
+		}
+
 		function ScaleContent () {
 			var origine = "0px 0px 0px";
 
@@ -200,19 +140,16 @@
 	        content.style.transformOrigin = origine; 
 			var sx = (window.innerWidth-20)/256;
 			var sy = (window.innerHeight-20)/64;
-			var Trans = 'translate('+10+'px,'+10+'px)';
 
-			//var Trans = 'translate3d('+10+'px,'+10+'px,0px) perspective(10px) rotateY(10deg)'// + " scaleZ(0.3)"+ //" scale3d("+sx+","+sx+", 0)"//+ " rotate(0deg)";
-			//var Trans ='matrix('+sy+', -0, 0, '+sx+', 10, 10)';
-			//var Trans2 ='matrix('+sy+', -0, 0, '+sx+', 10px, 10px)';
-			//var Trans = 'translate3d('+10+'px,'+10+'px,0px) '// + 'scale3d('+sx+','+sx+', '+sx+') rotateZ(-50deg)';
-			var Trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
-			content.style.webkitTransform =Trans;
-			content.style.MozTransform = Trans;
-			content.style.msTransform = Trans;
-			content.style.transform= Trans;
-			
+			//var trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
+			var trans = 'matrix('+sx+', -0, 0, '+sx+', 10, 10)'
+			content.style.webkitTransform = trans;
+			content.style.MozTransform = trans;
+			content.style.msTransform = trans;
+			content.style.transform= trans;
 		}
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
 
 	</script>
 </body>

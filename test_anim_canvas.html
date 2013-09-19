@@ -63,26 +63,6 @@
 
 
 		}
-		 
-		function scroll() {
-		    plan1X1 = (plan1X1 - 4) % -size.dx;
-		    plan1X2 = (plan1X2 - 4) % -size.dx;
-		    plan2X1 = (plan2X1 - 3) % -size.dx;
-		    plan2X2 = (plan2X2 - 3) % -size.dx;
-		    plan3X1 = (plan3X1 - 2) % -size.dx;
-		    plan3X2 = (plan3X2 - 2) % -size.dx;
-		    plan4X1 = (plan4X1 - 1) % -size.dx;
-		    plan4X2 = (plan4X2 - 1) % -size.dx;
-		    ctx.clearRect(0, 0, canvas.width, canvas.height);
-		    ctx.drawImage(imagePlan4,plan4X1 + size.x,0);
-		    ctx.drawImage(imagePlan4,plan4X2 + size.x,0);
-		    ctx.drawImage(imagePlan3,plan3X1 + size.x,0);
-		    ctx.drawImage(imagePlan3,plan3X2 + size.x,0);
-		    ctx.drawImage(imagePlan2,plan2X1 + size.x,0);
-		    ctx.drawImage(imagePlan2,plan2X2 + size.x,0);
-		    ctx.drawImage(imagePlan1,plan1X1 + size.x,0);
-		    ctx.drawImage(imagePlan1,plan1X2 + size.x,0);
-		}
 
 		function SpriteAnim (options) {
 	  		this.x = options.x ;
@@ -97,7 +77,6 @@
 	  		this.x = options.x;
 
 		    this.update = function () {
-
 		    	if(this.frames!=0){
 		    		if (this.n >= this.frames) { this.n = 0; }
 		    		ctx.drawImage( this.image, this.n * this.w, 0, this.w, this.w, this.x, this.y, this.w, this.w);
@@ -108,7 +87,6 @@
 					ctx.drawImage( this.image, 0, 0, this.w, this.h, this.w-this.n, this.y, this.w, this.h);
 					this.n += this.speed;
 				}
-				
 			};
 
 			this.stopAnimation = function () {

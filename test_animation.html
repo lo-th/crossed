@@ -17,6 +17,11 @@
 			height:64px;
 			position:absolute;
 			display:block;
+
+		}
+		.anim {
+			width: 100%;
+			height: 100%; 
 		}
 	</style>
 </head>
@@ -27,35 +32,56 @@
     </div>
 	<script type="text/javascript">
 	    var content = document.getElementById('content');
+	    content.style.transformStyle = 'preserve-3d';
 	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 20 });
 		//var test = new SpriteAnim({ x:80, y:0, w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 30 });
 		var t = [];
 
-		for(var i=0; i<20; i++){
-			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim"+i, speed : rand(5, 15) });
+		for(var i=0; i<200; i++){
+			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : rand(5, 15) });
 		}
 
-		window.addEventListener("resize", ScaleContent); 
+		var max = t.length;
+
+		window.addEventListener("resize", ScaleContent);
+		setInterval( update, 1000/60); 
 		ScaleContent();
+		update();
+		
+
+		function update () {
+			//requestAnimationFrame(update);
+			bg.update();
+			for(var i=0; i<max; i++){
+				t[i].update();
+			}
+
+		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };
 
 	  	function SpriteAnim (options) {
+	  		this.x = options.x ;
+	  		this.frames = options.frames ;
+	  		this.n = rand(0, this.frames);
+	  		this.w = options.w;
+	  		
 			var timerId, i = 0;
-			var element = document.createElement('div');
-			element.className = options.elementId;
-			content.appendChild(element);
+			this.element = document.createElement('li');
+			this.element.className = options.elementId;
+			content.appendChild(this.element);
 			//var element = document.getElementById(options.elementId);
-			element.style.width = options.w + "px";
-			element.style.height = options.h + "px";
-			element.style.backgroundRepeat = "repeat-x";
-			element.style.top = options.y + "px";
-			element.style.left = options.x + "px"; 
-			element.style.position = "absolute";
-			element.style.display = "block";
-			element.style.background = "url(" + options.sprite + ") transparent";
+			this.element.style.width = options.w + "px";
+			this.element.style.height = options.h + "px";
+			this.element.style.backgroundRepeat = "repeat-x";
+			this.element.style.top = options.y + "px";
+			this.element.style.left = options.x + "px"; 
+			this.element.style.position = "absolute";
+			this.element.style.display = "block";
+			this.element.style.pointerEvents="none";
+			this.element.style.background = "url(" + options.sprite + ") transparent";
 
-			if(options.frames!=0){ // sprite anim
+			/*if(options.frames!=0){ // sprite anim
 				timerId = setInterval(function () {
 				    if (i >= options.frames) { i = 0; }
 				    element.style.backgroundPosition = i * options.w + "px 0px";
@@ -67,26 +93,46 @@
 			    element.style.backgroundPosition = -i + "px 0px";
 			    i++;
 			    }, options.speed);
-		    }
+		    }*/
+		    this.update = function () {
+		    	if(this.frames!=0){
+		    	    if (this.n >= this.frames) { this.n = 0; }
+		    	    this.element.style.backgroundPosition = this.n * this.w + "px 0px";
+				    this.n++;
+				} else {
+					if (this.n >= this.w) { this.n = 0; }
+					this.element.style.backgroundPosition = -this.n + "px 0px";
+					this.n++;
+				}
+			};
 
 			this.stopAnimation = function () {
-			    clearInterval(timerId);
+			   // clearInterval(timerId);
 			};
 		}
 
 		function ScaleContent () {
-			
-			var sx = (window.innerWidth-20)/256;
-			var sy = (window.innerHeight-20)/64;
-			var Trans = "translate(10px,10px) scale("+sx+","+sx+")";
-			content.style.webkitTransform =Trans;
-			content.style.msTransform = Trans;
-			content.style.transform= Trans;
-			var origine = "0px 0px";
+			var origine = "0px 0px 0px";
 
 			content.style.webkitTransformOrigin = origine;
+			content.style.MozTransformOrigin = origine;
 	        content.style.msTransformOrigin = origine;
 	        content.style.transformOrigin = origine; 
+			var sx = (window.innerWidth-20)/256;
+			var sy = (window.innerHeight-20)/64;
+			//var Trans = 'translate3d('+10+'px,'+10+'px,0px) perspective(10px) rotateY(10deg)'// + " scaleZ(0.3)"+ //" scale3d("+sx+","+sx+", 0)"//+ " rotate(0deg)";
+			//var Trans ='matrix('+sy+', -0, 0, '+sx+', 10, 10)';
+			//var Trans2 ='matrix('+sy+', -0, 0, '+sx+', 10px, 10px)';
+			//var Trans = 'translate3d('+10+'px,'+10+'px,0px) '// + 'scale3d('+sx+','+sx+', '+sx+') rotateZ(-50deg)';
+			var Trans = 'matrix3d('+sx+',0,0,0,'+
+				                  '0,'+sx+',0,0,'+
+				                  '0,0,'+sx+',0,'+
+				                  '10,10,0,1 )';
+			content.style.webkitTransform =Trans;
+			content.style.MozTransform = Trans;
+			content.style.msTransform = Trans;
+			content.style.transform= Trans;
+			
 		}
 
 	</script>

@@ -24,14 +24,21 @@
 			width: 100%;
 			position:absolute;
 			display:block; 
+			color : #cccccc; 
+			font-size:12px;
+			font-weight: bold;
+			font-family: 'Segoe UI';
 		}
 		h3 {
 			display:inline; 
 		}
+		a {
+			color:#ff9933; text-decoration:none;
+		}
 	</style>
 </head>
 <body>
-	<div id="info"><h3>CANVAS animation</h3>  Vs <h3><a href="anim.html">DIV animation</a></h3></div>
+	<div id="info"> <h3><a href="anim.html">DIV animation</a></h3> vs <h3><a href="anim_canvas.html" style="color:#3399FF">CANVAS animation</a></h3> vs <h3><a href="anim_webgl.html">WEBGL animation</a></h3></div>
 	<div id="content">
 	    <canvas id="theCanvas" width="256" height="128"/>
     </div>

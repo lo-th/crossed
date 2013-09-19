@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Webgl Animation</title>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<style type="text/css">
+		body {
+			margin: 0px;
+			overflow: hidden;
+			background: #333333;
+			-ms-high-contrast-adjust: none;
+		}
+		#content {
+			width:256px;
+			height:128px;
+			position:absolute;
+			display:block;
+		}
+		#info {
+			left: 10px;
+			top: 10px;
+			width: 100%;
+			position:absolute;
+			display:block; 
+		}
+		h3 {
+			display:inline; 
+		}
+	</style>
+</head>
+<body>
+	<div id="info"><h3>CANVAS animation</h3>  Vs <h3><a href="anim.html">DIV animation</a></h3></div>
+	<div id="content">
+	    <canvas id="theCanvas" width="256" height="128"/>
+    </div>
+     <script src="js/webgl-2d.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	    var t = [], tmax;
+		var bg = [], bgmax;
+	    var content = document.getElementById('content');
+	    window.addEventListener("resize", ScaleContent);
+		ScaleContent();
+
+		window.addEventListener('load', function() {
+			init();
+			setInterval(update, 1000/60);
+		});
+
+		var size = {x:256, y:64, dx:512}
+		var canvas;
+		var ctx;
+		 
+		var init = function() {
+			canvas = document.getElementById("theCanvas");
+			WebGL2D.enable(canvas);
+			//ctx = canvas.getContext('2d');
+			ctx = canvas.getContext("webgl-2d");
+
+
+			bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
+		    bg[1] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
+		    bg[2] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
+            var posy = 38;
+			for(var i=0; i<60; i++){
+				posy+=0.5;
+				t[i] = new SpriteAnim({ x:rand(0, 200), y:posy, w: 64, h: 64, frames: 16, sprite: "img/anim-"+(Math.floor(Math.random()*4)) +".png", elementId : "anim", speed : 1, scale: (0.4+((posy-38)/50)) });
+			}
+			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
+			bgmax = bg.length;
+	        tmax = t.length;
+
+		}
+
+		function SpriteAnim (options) {
+	  		this.x = options.x ;
+	  		this.y = options.y ;
+	  		this.scale = options.scale || 1;
+	  		this.frames = options.frames ;
+	  		this.n = rand(0, this.frames);
+	  		this.w = options.w;
+	  		this.h = options.h;
+
+	  		this.speed = options.speed;
+	  		this.image = new Image();
+	  		this.image.src = options.sprite;
+	  		this.y = options.y
+	  		this.x = options.x;
+	  		/*if(this.scale!==1){
+	  			this.w=this.w*this.scale;
+	  		}*/
+
+		    this.update = function () {
+		    	if(this.frames!=0){
+		    		if (this.n >= this.frames) { this.n = 0; }
+		    		ctx.drawImage( this.image, this.n * this.w, 0, this.w, this.w, this.x, this.y, this.w*this.scale, this.w*this.scale);
+		    		this.n ++;
+		    	} else {
+					if (this.n >= this.w) { this.n = 0; }
+					ctx.drawImage( this.image, 0, 0, this.w, this.h, -this.n, this.y, this.w, this.h);
+					ctx.drawImage( this.image, 0, 0, this.w, this.h, this.w-this.n, this.y, this.w, this.h);
+					this.n += this.speed;
+				}
+			};
+
+			this.stopAnimation = function () {
+			   // clearInterval(timerId);
+			};
+		}
+
+
+		function update () {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			var i;
+			//requestAnimationFrame(update);
+			for(i=0; i<bgmax-1; i++){
+				bg[i].update();
+			}
+			for(i=0; i<tmax; i++){
+				t[i].update();
+			}
+			bg[3].update();
+
+		}
+
+		function ScaleContent () {
+			var origine = "0px 0px";
+			content.style.webkitTransformOrigin = origine;
+			content.style.MozTransformOrigin = origine;
+	        content.style.msTransformOrigin = origine;
+	        content.style.transformOrigin = origine; 
+			var sx = (window.innerWidth-20)/256;
+			var sy = (window.innerHeight-20)/64;
+
+			//var trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
+			var trans = 'matrix('+sx+', -0, 0, '+sx+', 10, 40)'
+			content.style.webkitTransform = trans;
+			content.style.MozTransform = trans;
+			content.style.msTransform = trans;
+			content.style.transform= trans;
+		}
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
+
+	</script>
+</body>
+</html>

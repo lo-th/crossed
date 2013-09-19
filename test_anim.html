@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Crossed Animation css</title>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<style type="text/css">
+		body {
+			margin: 0px;
+			overflow: hidden;
+			background: #363636;
+			-ms-high-contrast-adjust: none;
+		}
+		#content {
+			width:256px;
+			height:64px;
+			position:absolute;
+			display:block;
+
+		}
+		.anim {
+			width: 100%;
+			height: 100%; 
+		}
+	</style>
+</head>
+<body>
+	<div id="content"></div>
+	<script type="text/javascript">
+	    var content = document.getElementById('content');
+	    content.style.transformStyle = 'preserve-3d';
+	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
+	    var bg2 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
+	    var bg3 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
+		var t = [];
+
+		for(var i=0; i<30; i++){
+			t[i] = new SpriteAnim({ x:rand(0, 200), y:rand(0, 2), w: 64, h: 64, frames: 16, sprite: "img/anim-1.png", elementId : "anim", speed : 1 });
+		}
+
+		var bg4 = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
+
+		var max = t.length;
+
+		window.addEventListener("resize", ScaleContent);
+		setInterval( update, 1000/60); 
+		ScaleContent();
+		update();
+		
+
+		function update () {
+			//requestAnimationFrame(update);
+			bg.update();
+			bg2.update();
+			bg3.update();
+			bg4.update();
+			for(var i=0; i<max; i++){
+				t[i].update();
+			}
+
+		}
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
+
+	  	function SpriteAnim (options) {
+	  		this.x = options.x ;
+	  		this.frames = options.frames ;
+	  		this.n = rand(0, this.frames);
+	  		this.w = options.w;
+	  		this.speed = options.speed;
+	  		
+			var timerId, i = 0;
+			this.element = document.createElement('li');
+			this.element.className = options.elementId;
+			content.appendChild(this.element);
+			this.element.style.width = options.w + "px";
+			this.element.style.height = options.h + "px";
+			this.element.style.backgroundRepeat = "repeat-x";
+			this.element.style.top = options.y + "px";
+			this.element.style.left = options.x + "px"; 
+			this.element.style.position = "absolute";
+			this.element.style.display = "block";
+			this.element.style.pointerEvents="none";
+			//this.element.style.background = "url(" + options.sprite + ") transparent";
+			this.element.style.background = "url(" + options.sprite + ")";
+			
+		    this.update = function () {
+		    	if(this.frames!=0){
+		    	    if (this.n >= this.frames) { this.n = 0; }
+		    	    this.element.style.backgroundPosition = this.n * this.w + "px 0px";
+		    	    this.n ++;
+				} else {
+					if (this.n >= this.w) { this.n = 0; }
+					this.element.style.backgroundPosition = -this.n  + "px 0px";
+					this.n += this.speed;
+				}
+				
+			};
+
+			this.stopAnimation = function () {
+			   // clearInterval(timerId);
+			};
+		}
+
+		function ScaleContent () {
+			var origine = "0px 0px 0px";
+			content.style.webkitTransformOrigin = origine;
+			content.style.MozTransformOrigin = origine;
+	        content.style.msTransformOrigin = origine;
+	        content.style.transformOrigin = origine; 
+			var sx = (window.innerWidth-20)/256;
+			var sy = (window.innerHeight-20)/64;
+
+			//var trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
+			var trans = 'matrix('+sx+', -0, 0, '+sx+', 10, 10)'
+			content.style.webkitTransform = trans;
+			content.style.MozTransform = trans;
+			content.style.msTransform = trans;
+			content.style.transform= trans;
+		}
+
+	</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<title>Crossed Game</title>
+	<title>Crossed Animation Canvas</title>
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<style type="text/css">
@@ -26,11 +26,101 @@
 	</style>
 </head>
 <body>
+	
 	<div id="content">
-	    <div id="bg"></div>
-	    <div id="anim"></div>
+	    <canvas id="theCanvas" width="256" height="64"/>
     </div>
 	<script type="text/javascript">
+	    var content = document.getElementById('content');
+	    window.addEventListener("resize", ScaleContent);
+		ScaleContent()
+
+
+/*
+	    var canvas;
+		var canvas2DContext;
+		var imagePlan1 = new Image();
+		var plan1X1 = 0;
+		var plan1X2 = 0;
+
+		var init = function() {
+			canvas = document.getElementById("theCanvas");
+			canvas2DContext = canvas.getContext('2d');
+			imagePlan1.src = "img/bg-1.png";
+			plan1X2 = canvas.width;
+		}
+
+
+		window.addEventListener('load', function() { init(); setInterval(scroll, 1000/60);});
+		;
+
+		function scroll() {
+		  plan1X1 = (plan1X1 + 1) % 512;
+		  plan1X2 = (plan1X2 + 1) % 512;
+		  //plan1X1++;
+		  //plan1X2++;
+		  canvas2DContext.clearRect(0, 0, canvas.width, canvas.height);
+		  canvas2DContext.drawImage(imagePlan1,plan1X1-256,0);
+		  canvas2DContext.drawImage(imagePlan1,plan1X2-256,0);
+		 }
+
+*/
+		var size = {x:256, y:64, dx:512}
+		var canvas;
+		var ctx;
+		var imagePlan1 = new Image();
+		var imagePlan2 = new Image();
+		var imagePlan3 = new Image();
+		var imagePlan4 = new Image();
+		var plan1X1 = 0;
+		var plan1X2 = 0;
+		var plan2X1 = 0;
+		var plan2X2 = 0;
+		var plan3X1 = 0;
+		var plan3X2 = 0;
+		var plan4X1 = 0;
+		var plan4X2 = 0;
+		 
+		var initialisation = function() {
+			canvas = document.getElementById("theCanvas");
+			ctx = canvas.getContext('2d');
+			imagePlan1.src = "img/bg-4.png";
+			imagePlan2.src = "img/bg-3.png";
+			imagePlan3.src = "img/bg-2.png";
+			imagePlan4.src = "img/bg-1.png";
+			plan1X2 = -canvas.width;
+			plan2X2 = -canvas.width;
+			plan3X2 = -canvas.width;
+			plan4X2 = -canvas.width;
+		}
+		 
+		function scroll() {
+		    plan1X1 = (plan1X1 - 4) % -size.dx;
+		    plan1X2 = (plan1X2 - 4) % -size.dx;
+		    plan2X1 = (plan2X1 - 3) % -size.dx;
+		    plan2X2 = (plan2X2 - 3) % -size.dx;
+		    plan3X1 = (plan3X1 - 2) % -size.dx;
+		    plan3X2 = (plan3X2 - 2) % -size.dx;
+		    plan4X1 = (plan4X1 - 1) % -size.dx;
+		    plan4X2 = (plan4X2 - 1) % -size.dx;
+		    ctx.clearRect(0, 0, canvas.width, canvas.height);
+		    ctx.drawImage(imagePlan4,plan4X1 + size.x,0);
+		    ctx.drawImage(imagePlan4,plan4X2 + size.x,0);
+		    ctx.drawImage(imagePlan3,plan3X1 + size.x,0);
+		    ctx.drawImage(imagePlan3,plan3X2 + size.x,0);
+		    ctx.drawImage(imagePlan2,plan2X1 + size.x,0);
+		    ctx.drawImage(imagePlan2,plan2X2 + size.x,0);
+		    ctx.drawImage(imagePlan1,plan1X1 + size.x,0);
+		    ctx.drawImage(imagePlan1,plan1X2 + size.x,0);
+		}
+		 
+		window.addEventListener('load', function() {
+			initialisation();
+			setInterval(scroll, 1000/60);
+		});
+
+		/*
+
 	    var content = document.getElementById('content');
 	    content.style.transformStyle = 'preserve-3d';
 	    var bg = new SpriteAnim({ x:0, y:0 ,w: 256, h: 64, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 20 });
@@ -83,19 +173,7 @@
 			this.element.style.background = "url(" + options.sprite + ")";
 			
 
-			/*if(options.frames!=0){ // sprite anim
-				timerId = setInterval(function () {
-				    if (i >= options.frames) { i = 0; }
-				    element.style.backgroundPosition = i * options.w + "px 0px";
-				    i++;
-				}, options.speed);
-		    } else { // scrolling
-		    	timerId = setInterval(function () {
-			    if (i >= options.w) { i = 0; }
-			    element.style.backgroundPosition = -i + "px 0px";
-			    i++;
-			    }, options.speed);
-		    }*/
+			
 		    this.update = function () {
 		    	if(this.frames!=0){
 		    	    if (this.n >= this.frames) { this.n = 0; }
@@ -112,7 +190,7 @@
 			   // clearInterval(timerId);
 			};
 		}
-
+*/
 		function ScaleContent () {
 			var origine = "0px 0px 0px";
 
@@ -128,10 +206,7 @@
 			//var Trans ='matrix('+sy+', -0, 0, '+sx+', 10, 10)';
 			//var Trans2 ='matrix('+sy+', -0, 0, '+sx+', 10px, 10px)';
 			//var Trans = 'translate3d('+10+'px,'+10+'px,0px) '// + 'scale3d('+sx+','+sx+', '+sx+') rotateZ(-50deg)';
-			/*var Trans = 'matrix3d('+sx+',0,0,0,'+
-				                  '0,'+sx+',0,0,'+
-				                  '0,0,'+sx+',0,'+
-				                  '10,10,0,1 )';*/
+			var Trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
 			content.style.webkitTransform =Trans;
 			content.style.MozTransform = Trans;
 			content.style.msTransform = Trans;

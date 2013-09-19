@@ -290,10 +290,12 @@
 
           // Default white background
           gl.clearColor(1, 1, 1, 1);
+          //gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT); // | gl.DEPTH_BUFFER_BIT);
 
           // Disables writing to dest-alpha
-          gl.colorMask(1,1,1,0);
+          //gl.colorMask(1,1,1,0);
+          gl.colorMask(1,1,1,1);
 
           // Depth options
           //gl.enable(gl.DEPTH_TEST);

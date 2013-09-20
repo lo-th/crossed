@@ -36,10 +36,14 @@
 	</div>
 	<script src="js/pixi.js"></script>
 	<script type="text/javascript">
+	    
 		var t = [], tmax;
 		var bg = [], bgmax;
 		var content, stage, renderer;
 		var SCALE = 4; // resolution multiplier
+
+		var assetsToLoader = [ "img/anim-0.json", "img/anim-1.json", "img/anim-2.json", "img/anim-3.json"];
+		var loader;
 
 		window.onload = init;
 
@@ -53,23 +57,78 @@
 			renderer.view.style.top = "40px";
 			renderer.view.style.left = "10px";
 			renderer.view.style.width = window.innerWidth-20+"px";
+
+			loader = new PIXI.AssetLoader(assetsToLoader);
+			loader.onComplete = onAssetsLoaded;
+			loader.load();
 		
-			bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
+			/*bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
 			bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 2 });
 			bg[2] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", speed : 3 });
 			
 			var posy = 38;
 			for(var i=0; i<60; i++){
 				posy+=0.5;
-				t[i] = new SpriteAnim({ x:rand(0, 200), y:posy, w: 64, h: 64, frames: 16, sprite: "img/anim-"+(Math.floor(Math.random()*4)) +".png", elementId : "anim", speed : 1, scale: (0.4+((posy-38)/50)) });
+				t[i] = new SpriteAnim({ x:rand(0, 200), y:posy, w: 64, h: 64, frames: 16, sprite: "img/anim-"+(Math.floor(Math.random()*4)) +".png", speed : 1, scale: (0.4+((posy-38)/50)) });
 			}
 			bg[3] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", speed : 4 });
 			bgmax = bg.length;
-			tmax = t.length;
+			tmax = t.length;*/
 
 			window.addEventListener("resize", resize, false);
-			requestAnimFrame( animate );
+			//requestAnimFrame( animate );
 	    }
+
+	    function onAssetsLoaded() {
+	    	// add bg
+	    	bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
+			bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 2 });
+			bg[2] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", speed : 3 });
+			// create an array to store the textures
+			var anim = [];
+			for(var j=0; j<4; j++){
+				anim[j] = [];
+			}
+			var texture;
+			for (var i=0; i < 15; i++) 
+			{
+			 	texture = PIXI.Texture.fromFrame("anim-0 " + (i+1));
+			 	anim[0].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-1 " + (i+1));
+			 	anim[1].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-2 " + (i+1));
+			 	anim[2].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-3 " + (i+1));
+			 	anim[3].push(texture);
+			};
+
+			var posy = 38;
+			for (var i = 0; i < 60; i++) 
+			{
+				posy+=0.5;
+				t[i] = new PIXI.MovieClip(anim[Math.floor(Math.random()*4)]);
+				t[i].position.x = (rand(0, 200))*SCALE;;//Math.random() * 800;
+				t[i].position.y = posy*SCALE;//Math.random() * 600;
+				//t[i].anchor.x = 0.5;
+				//t[i].anchor.y = 0.5;
+				//t[i].rotation = Math.random() * Math.PI;
+				t[i].scale.x = t[i].scale.y = (0.4+((posy-38)/50))*SCALE;
+				t[i].gotoAndPlay(Math.random() * 15);
+				
+				stage.addChild(t[i]);
+			}
+
+			bg[3] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", speed : 4 });
+
+			bgmax = bg.length;
+			tmax = t.length;
+			// start animating
+			requestAnimFrame( animate );
+			
+		}
 
 		function animate() {
 		    requestAnimFrame( animate );
@@ -78,9 +137,9 @@
 			for(i=0; i<bgmax; i++){
 				bg[i].update();
 			}
-			for(i=0; i<tmax; i++){
+			/*for(i=0; i<tmax; i++){
 				t[i].update();
-			}
+			}*/
 		    renderer.render(stage);
 
 		}

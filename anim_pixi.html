@@ -29,12 +29,16 @@
 	
 </head>
 <body>
+	<div id="content"></div>
 	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3></div>
+	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: 0;">
+		<a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+	</div>
 	<script src="js/pixi.js"></script>
 	<script type="text/javascript">
 		var t = [], tmax;
 		var bg = [], bgmax;
-		var stage, renderer;
+		var content, stage, renderer;
 		var SCALE = 4; // resolution multiplier
 
 		window.onload = init;
@@ -42,8 +46,9 @@
 		function init() {
 			stage = new PIXI.Stage(0x333333, true);
 			renderer = PIXI.autoDetectRenderer(256*SCALE, 128*SCALE, null);
+			content = document.getElementById('content');
 
-			document.body.appendChild(renderer.view);
+			content.appendChild(renderer.view);
 			renderer.view.style.position = "absolute";
 			renderer.view.style.top = "40px";
 			renderer.view.style.left = "10px";

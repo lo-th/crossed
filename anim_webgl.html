@@ -45,9 +45,12 @@
 
 		function init() {
 			canvas = document.getElementById("theCanvas");
+
 			WebGL2D.enable(canvas);
+			try { ctx = canvas.getContext("webgl-2d") }
+            catch (x) { ctx = canvas.getContext('2d'); }
 			//ctx = canvas.getContext('2d');
-			ctx = canvas.getContext("webgl-2d");
+			//ctx = canvas.getContext("webgl-2d");
 			canvas.style.position = "absolute";
 			canvas.style.top = "40px";
 			canvas.style.left = "10px";

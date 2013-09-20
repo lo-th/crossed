@@ -12,12 +12,6 @@
 			background: #333333;
 			-ms-high-contrast-adjust: none;
 		}
-		#content {
-			width:256px;
-			height:128px;
-			position:absolute;
-			display:block;
-		}
 		#info {
 			left: 10px;
 			top: 10px;
@@ -38,67 +32,57 @@
 	</style>
 </head>
 <body>
-	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html"  style="color:#3399FF">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
-	<div id="content">
-	    <canvas id="theCanvas" width="256" height="128"/>
-    </div>
-     <script src="js/webgl-2d.js" type="text/javascript"></script>
+	<div><canvas id="theCanvas" width="256" height="128"/></div>
+	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html" style="color:#3399FF">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
+	
+    <script src="js/webgl-2d.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	    var t = [], tmax;
 		var bg = [], bgmax;
-	    var content = document.getElementById('content');
-	    window.addEventListener("resize", ScaleContent);
-		ScaleContent();
+	    var canvas, ctx;
 
-		window.addEventListener('load', function() {
-			init();
-			requestAnimationFrame( update );
-			//setInterval(update, 1000/60);
-		});
+		window.onload = init;
 
-		var size = {x:256, y:64, dx:512}
-		var canvas;
-		var ctx;
-		 
-		var init = function() {
+		function init() {
 			canvas = document.getElementById("theCanvas");
 			WebGL2D.enable(canvas);
 			//ctx = canvas.getContext('2d');
 			ctx = canvas.getContext("webgl-2d");
+			canvas.style.position = "absolute";
+			canvas.style.top = "40px";
+			canvas.style.left = "10px";
+			canvas.style.width = window.innerWidth-20+"px";
 
-
-			bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
-		    bg[1] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
-		    bg[2] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
+			bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
+		    bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 2 });
+		    bg[2] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", speed : 3 });
             var posy = 38;
 			for(var i=0; i<60; i++){
 				posy+=0.5;
 				t[i] = new SpriteAnim({ x:rand(0, 200), y:posy, w: 64, h: 64, frames: 16, sprite: "img/anim-"+(Math.floor(Math.random()*4)) +".png", elementId : "anim", speed : 1, scale: (0.4+((posy-38)/50)) });
 			}
-			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
+			bg[3] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", speed : 4 });
 			bgmax = bg.length;
 	        tmax = t.length;
 
+	        window.addEventListener("resize", resize);
+	        requestAnimationFrame( update );
 		}
 
 		function SpriteAnim (options) {
-	  		this.x = options.x ;
-	  		this.y = options.y ;
+	  		this.x = options.x || 0;
+	  		this.y = options.y || 0;
+	  		this.w = options.w;
+	  		this.h = options.h;
 	  		this.scale = options.scale || 1;
 	  		this.frames = options.frames ;
 	  		this.n = rand(0, this.frames);
-	  		this.w = options.w;
-	  		this.h = options.h;
+	  		
 
 	  		this.speed = options.speed;
 	  		this.image = new Image();
 	  		this.image.src = options.sprite;
-	  		this.y = options.y
-	  		this.x = options.x;
-	  		/*if(this.scale!==1){
-	  			this.w=this.w*this.scale;
-	  		}*/
-
+	  	
 		    this.update = function () {
 
 		    	if(this.frames!=0){
@@ -112,10 +96,6 @@
 					this.n += this.speed;
 				}
 			};
-
-			this.stopAnimation = function () {
-			   // clearInterval(timerId);
-			};
 		}
 
 
@@ -123,7 +103,6 @@
 			requestAnimationFrame( update );
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			var i;
-			//requestAnimationFrame(update);
 			for(i=0; i<bgmax-1; i++){
 				bg[i].update();
 			}
@@ -131,24 +110,10 @@
 				t[i].update();
 			}
 			bg[3].update();
-
 		}
 
-		function ScaleContent () {
-			var origine = "0px 0px";
-			content.style.webkitTransformOrigin = origine;
-			content.style.MozTransformOrigin = origine;
-	        content.style.msTransformOrigin = origine;
-	        content.style.transformOrigin = origine; 
-			var sx = (window.innerWidth-20)/256;
-			var sy = (window.innerHeight-20)/64;
-
-			//var trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
-			var trans = 'matrix('+sx+', -0, 0, '+sx+', 10, 40)'
-			content.style.webkitTransform = trans;
-			content.style.MozTransform = trans;
-			content.style.msTransform = trans;
-			content.style.transform= trans;
+		function resize () {
+			canvas.style.width = window.innerWidth-20+"px";
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };

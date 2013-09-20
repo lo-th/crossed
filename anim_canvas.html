@@ -11,12 +11,6 @@
 			overflow: hidden;
 			background: #333333;
 		}
-		#content {
-			width:256px;
-			height:128px;
-			position:absolute;
-			display:block;
-		}
 		#info {
 			left: 10px;
 			top: 10px;
@@ -28,37 +22,27 @@
 			font-weight: bold;
 			font-family: 'Segoe UI';
 		}
-		h3 {
-			display:inline; 
-		}
-		a {
-			color:#ff9933; text-decoration:none;
-		}
+		h3 { display:inline; }
+		a { color:#ff9933; text-decoration:none; }
 	</style>
 </head>
 <body>
+	<div><canvas id="theCanvas" width="256" height="128"/></div>
 	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html" style="color:#3399FF">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
-	<div id="content">
-	    <canvas id="theCanvas" width="256" height="128"/>
-    </div>
+	
 	<script type="text/javascript">
 	    var t = [], tmax;
 		var bg = [], bgmax;
-	    var content = document.getElementById('content');
-	    window.addEventListener("resize", ScaleContent);
-		ScaleContent();
+	    var canvas, ctx;
+	    
+		window.onload = init;
 
-		window.addEventListener('load', function() {
-			init();
-			setInterval(update, 1000/60);
-		});
-
-		var size = {x:256, y:64, dx:512}
-		var canvas;
-		var ctx;
-		 
-		var init = function() {
+		function init() {
 			canvas = document.getElementById("theCanvas");
+			canvas.style.position = "absolute";
+			canvas.style.top = "40px";
+			canvas.style.left = "10px";
+			canvas.style.width = window.innerWidth-20+"px";
 			ctx = canvas.getContext('2d');
 
 			bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
@@ -72,6 +56,10 @@
 			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
 			bgmax = bg.length;
 	        tmax = t.length;
+
+	        window.addEventListener("resize", resize);
+	        requestAnimationFrame( update );
+	        //setInterval(update, 1000/60);
 		}
 
 		function SpriteAnim (options) {
@@ -88,9 +76,6 @@
 	  		this.image.src = options.sprite;
 	  		this.y = options.y
 	  		this.x = options.x;
-	  		/*if(this.scale!==1){
-	  			this.w=this.w*this.scale;
-	  		}*/
 
 		    this.update = function () {
 		    	if(this.frames!=0){
@@ -112,9 +97,9 @@
 
 
 		function update () {
+			requestAnimationFrame( update );
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			var i;
-			//requestAnimationFrame(update);
 			for(i=0; i<bgmax-1; i++){
 				bg[i].update();
 			}
@@ -125,21 +110,8 @@
 
 		}
 
-		function ScaleContent () {
-			var origine = "0px 0px";
-			content.style.webkitTransformOrigin = origine;
-			content.style.MozTransformOrigin = origine;
-	        content.style.msTransformOrigin = origine;
-	        content.style.transformOrigin = origine; 
-			var sx = (window.innerWidth-20)/256;
-			var sy = (window.innerHeight-20)/64;
-
-			//var trans = 'matrix3d('+sx+',0,0,0,'+ '0,'+sx+',0,0,'+ '0,0,'+sx+',0,'+ '10,10,0,1 )';
-			var trans = 'matrix('+sx+', -0, 0, '+sx+', 10, 40)'
-			content.style.webkitTransform = trans;
-			content.style.MozTransform = trans;
-			content.style.msTransform = trans;
-			content.style.transform= trans;
+		function resize () {
+			canvas.style.width = window.innerWidth-20+"px";
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };

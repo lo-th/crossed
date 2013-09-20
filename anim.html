@@ -39,21 +39,18 @@
 	</style>
 </head>
 <body>
-	<div id="info"> <h3><a href="anim.html" style="color:#3399FF">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
 	<div id="content"></div>
+	<div id="info"> <h3><a href="anim.html" style="color:#3399FF">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
+	
 	<script type="text/javascript">
 	    var t = [], tmax;
 		var bg = [], bgmax;
-	    var content = document.getElementById('content');
-	    window.addEventListener("resize", ScaleContent);
-	    ScaleContent();
+	    var content;
 
-	    window.addEventListener('load', function() {
-			init();
-			setInterval(update, 1000/60);
-		});
+	    window.onload = init;
 
-	    var init = function() {
+	    function init() {
+	    	content = document.getElementById('content');
 		    bg[0] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", elementId : "bg", speed : 1 });
 		    bg[1] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", elementId : "bg", speed : 2 });
 		    bg[2] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", elementId : "bg", speed : 3 });
@@ -65,11 +62,16 @@
 			bg[3] = new SpriteAnim({ x:0, y:0 ,w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", elementId : "bg", speed : 4 });
 			bgmax = bg.length;
 	        tmax = t.length;
+
+	        window.addEventListener("resize", resize, false);
+	        resize();
+	        //requestAnimationFrame(update);
+	        setInterval(update, 1000/60);
 		}
 
 		function update () {
-			var i;
 			//requestAnimationFrame(update);
+			var i;
 			for(i=0; i<bgmax; i++){
 				bg[i].update();
 			}
@@ -78,7 +80,7 @@
 			}
 		}
 
-		function rand(min, max) { return (Math.random()*(max-min))+min; };
+		
 
 	  	function SpriteAnim (options) {
 	  		this.x = options.x ;
@@ -134,7 +136,7 @@
 			};
 		}
 
-		function ScaleContent () {
+		function resize () {
 			var origine = "0px 0px";
 			content.style.webkitTransformOrigin = origine;
 			content.style.MozTransformOrigin = origine;
@@ -150,6 +152,8 @@
 			content.style.msTransform = trans;
 			content.style.transform= trans;
 		}
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
 
 	</script>
 </body>

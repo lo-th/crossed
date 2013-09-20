@@ -25,6 +25,7 @@
 		}
 		h3 { display:inline; }
 		a { color:#ff9933; text-decoration:none; }
+		a img{  border: 0; }
 	</style>
 </head>
 <body>
@@ -51,6 +52,7 @@
 			canvas.style.top = "40px";
 			canvas.style.left = "10px";
 			canvas.style.width = window.innerWidth-20+"px";
+			canvas.style.height = (window.innerWidth-20)*0.5+ "px";
 
 			bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
 		    bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 2 });
@@ -113,6 +115,7 @@
 
 		function resize () {
 			canvas.style.width = window.innerWidth-20+"px";
+			canvas.style.height = (window.innerWidth-20)*0.5+ "px";
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };

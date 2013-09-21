@@ -51,14 +51,14 @@
         
         stage = new PIXI.Stage(0x333333, true);
         renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, null);
-        //document.body.appendChild(renderer.view);
+
         var content = document.getElementById('content');
         content.appendChild(renderer.view);
         renderer.view.style.position = "absolute";
         renderer.view.style.top = "40px";
-            renderer.view.style.left = "10px";
-            renderer.view.style.width = window.innerWidth-20+"px";
-            renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+        renderer.view.style.left = "10px";
+        renderer.view.style.width = window.innerWidth-20+"px";
+        renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
         
         var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;

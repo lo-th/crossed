@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #333333;
             margin: 0px;
             overflow: hidden;
         }
@@ -39,10 +39,9 @@
             || window.msRequestAnimationFrame
             || function(callback) { return window.setTimeout(callback, 1000 / 60); };
 
-    window.onload = onLoad();
+    window.onload = init;
     
-    function onLoad()
-    {
+    function init() {
         /*stats = new Stats();
         container.appendChild(stats.domElement);
         stats.domElement.style.position = "absolute";
@@ -53,6 +52,7 @@
         //document.body.appendChild(renderer.view);
         var content = document.getElementById('content');
         content.appendChild(renderer.view);
+        renderer.view.style.position = "absolute";
         
         var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;

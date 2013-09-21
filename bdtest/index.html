@@ -136,7 +136,7 @@
             }
         }
         
-        document.addEventListener("mousedown", function(event) {
+        /*document.addEventListener("mousedown", function(event) {
             isBegin = true;
             onMove(event);
             document.addEventListener("mousemove", onMove, true);
@@ -160,7 +160,7 @@
             isBegin = false;
             touchX = undefined;
             touchY = undefined;
-        }, true);
+        }, true);*/
         
         //update();
         // start animating
@@ -205,9 +205,8 @@
         }
     }
     
-    function update()
-    {
-        raf(update);
+    function update() {
+        
         
         if(isBegin && !mouseJoint)
         {
@@ -251,6 +250,7 @@
         
         renderer.render(stage);
         //stats.update();
+        raf(update);
     }
 
     function resize() {

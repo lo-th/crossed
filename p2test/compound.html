@@ -98,8 +98,7 @@
         var demo = new PixiDemo(world, {w:window.innerWidth, h:window.innerHeight});
 
         function update(){
-            if(!demo.paused)
-                world.step(1/60);
+            if(!demo.paused) world.step(1/60);
             requestAnimationFrame(update);
         }
         requestAnimationFrame(update);

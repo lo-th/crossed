@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Pixi Animation</title>
+<meta charset="utf-8" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+	body {
+		margin: 0px;
+	}
+
+	#tabbar {
+		padding-top: 2px;
+		padding-bottom: 2px;
+		border: 0px;
+		border-bottom: 2px;
+		border-style: solid;
+		background-color: rgba(255,255,255,0.5);
+		border-color: #333;
+	}
+
+	#tabbar a {
+		padding: 3px 10px 2px 10px;
+		border-top: 0px;
+		border-right: 2px;
+		border-left: 2px;
+		border-bottom: 0px;
+		border-style: solid;
+		border-color: rgba(0,0,0,0);
+		color: #888;
+		text-decoration: none;
+	}
+
+	#tabbar .selected {
+		border-color: #333;
+		color: #333;
+		background-color: #eec;
+	}
+
+	canvas { /* float below */
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: -1;
+	}
+	#content { /* float below */
+		position: absolute;
+		top: 40px;
+		left: 900px;
+	}
+
+</style>
+</head>
+<body>
+<div id="tabbar"></div>
+<canvas></canvas>
+<div id="content"></div>
+<script src="js/pixi.min.js"></script>
+<script src="js/cp.min.js"></script>
+<script src="js/demo.pixi.js"></script>
+
+<script src="js/LogoSmash.js"></script>
+<script src="js/ball.js"></script>
+<script src="js/Joints.js"></script>
+<script src="js/PyramidStack.js"></script>
+<script src="js/PyramidTopple.js"></script>
+<script src="js/Convex.js"></script>
+<script src="js/Query.js"></script>
+<script src="js/buoyancy.js"></script>
+
+<script>
+	var bar = document.getElementById('tabbar');
+
+	var current = null;
+
+	for (var i = 0; i < demos.length; i++) {
+		var tab = document.createElement('a');
+		tab.href = '#';
+		tab.className = 'deselected';
+		tab.textContent = demos[i].name;
+		demos[i].tab = tab;
+		tab.demo = demos[i].demo;
+
+		tab.onclick = function(){
+			for (var i = 0; i < demos.length; i++) {
+				demos[i].tab.className = 'deselected';
+			}
+			this.className = 'selected';
+
+			if (current) current.stop();
+			current = new this.demo();
+			current.run();
+			return false;
+		};
+
+		bar.appendChild(tab);
+	}
+
+	demos[Math.floor(Math.random() * demos.length)].tab.onclick();
+</script>
+</body>
+</html>

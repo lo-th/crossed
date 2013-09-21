@@ -18,10 +18,11 @@
             || window.oRequestAnimationFrame
             || window.msRequestAnimationFrame
             || function(callback) { return window.setTimeout(callback, 1000 / 60); };
-    
+    onLoad();
+    /*
 	(function init()
 	{
-		/*if (!window.requestAnimationFrame) 
+		if (!window.requestAnimationFrame) 
 		{
 			window.requestAnimationFrame = (function() {
 				return window.webkitRequestAnimationFrame ||
@@ -32,10 +33,10 @@
 					window.setTimeout(callback, 1000 / 60);
 				};
 			})();
-		}*/
+		}
 		
 		window.onload = onLoad;
-	})();
+	})();*/
 	
 	function onLoad()
 	{

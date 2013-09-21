@@ -25,23 +25,24 @@
 		}
 		h3 { display:inline; }
 		a { color:#ff9933; text-decoration:none;}
-		a img{  border: 0; }
+		a img{ border: 0; }
 	</style>
 	
 </head>
 <body>
 	<div id="content"></div>
-	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3></div>
 	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;">
 		<a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
 	</div>
+	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3></div>
+	
 	<script src="js/pixi.js"></script>
 	<script type="text/javascript">
 	    
 		var t = [], tmax;
 		var bg = [], bgmax;
 		var content, stage, renderer;
-		var SCALE = 4; // resolution multiplier
+		var SCALE = 1; // resolution multiplier
 
 		var assetsToLoader = [ "img/anim-0.json", "img/anim-1.json", "img/anim-2.json", "img/anim-3.json"];
 		var loader;
@@ -78,7 +79,7 @@
 			tmax = t.length;*/
 
 			window.addEventListener("resize", resize, false);
-			//requestAnimFrame( animate );
+			//raf(update);
 	    }
 
 	    function onAssetsLoaded() {
@@ -126,14 +127,12 @@
 
 			bgmax = bg.length;
 			tmax = t.length;
-			// start animating
-			requestAnimFrame( animate );
 			
+			// start animating
+			raf(update);
 		}
 
-		function animate() {
-		    requestAnimFrame( animate );
-
+		function update() {
 			var i;
 			for(i=0; i<bgmax; i++){
 				bg[i].update();
@@ -143,6 +142,7 @@
 			}*/
 		    renderer.render(stage);
 
+		    raf(update);
 		}
 
 		function SpriteAnim(options) {
@@ -182,6 +182,13 @@
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };
+
+		var raf = window.requestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| window.oRequestAnimationFrame
+			|| window.msRequestAnimationFrame
+			|| function(callback) { return window.setTimeout(callback, 1000 / 60); };
 
 	</script>
 

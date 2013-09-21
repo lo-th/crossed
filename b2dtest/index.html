@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Pixi Box2d</title>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0px;
+            overflow: hidden;
+        }
+        #stats #fps { background: transparent !important }
+        #stats #fps #fpsText { color: #8f8f8f !important }
+        #stats #fps #fpsGraph { display: none }
+    </style>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/javascript" src="js/box2D.min.js"></script>
+    <script type="text/javascript" src="js/pixi.min.js"></script>
+    <script type="text/javascript" src="js/stats.min.js"></script>
+    <script type="text/javascript" src="js/utils/MathUtil.js"></script>
+    <script type="text/javascript">
+    var STAGE_WIDTH = window.innerWidth, STAGE_HEIGHT = window.innerHeight;
+    var METER = 100;
+    
+    var bodies = [], actors = [];
+    var stage, renderer;
+    var world, mouseJoint;
+    var touchX, touchY;
+    var isBegin;
+    var stats;
+    var raf = window.requestAnimationFrame
+            || window.webkitRequestAnimationFrame
+            || window.mozRequestAnimationFrame
+            || window.oRequestAnimationFrame
+            || window.msRequestAnimationFrame
+            || function(callback) { return window.setTimeout(callback, 1000 / 60); };
+
+    window.onload = onLoad();
+    
+    function onLoad()
+    {
+        /*stats = new Stats();
+        container.appendChild(stats.domElement);
+        stats.domElement.style.position = "absolute";
+        */
+        
+        stage = new PIXI.Stage(0x333333, true);
+        renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, undefined, false);
+        //document.body.appendChild(renderer.view);
+        var content = document.getElementById('content');
+        content.appendChild(renderer.view);
+        
+        var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
+        loader.onComplete = onLoadAssets;
+        loader.load();
+    }
+    
+    function onLoadAssets()
+    {
+        world = new Box2D.Dynamics.b2World(new Box2D.Common.Math.b2Vec2(0, 10),  true);
+        
+        var polyFixture = new Box2D.Dynamics.b2FixtureDef();
+        polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
+        polyFixture.density = 1;
+        
+        var circleFixture = new Box2D.Dynamics.b2FixtureDef();
+        circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
+        circleFixture.density = 1;
+        circleFixture.restitution = 0.7;
+        
+        var bodyDef = new Box2D.Dynamics.b2BodyDef();
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+        
+        //down
+        polyFixture.shape.SetAsBox(10, 1);
+        bodyDef.position.Set(9, STAGE_HEIGHT / METER + 1);
+        world.CreateBody(bodyDef).CreateFixture(polyFixture);
+        
+        //left
+        polyFixture.shape.SetAsBox(1, 100);
+        bodyDef.position.Set(-1, 0);
+        world.CreateBody(bodyDef).CreateFixture(polyFixture);
+        
+        //right
+        bodyDef.position.Set(STAGE_WIDTH / METER + 1, 0);
+        world.CreateBody(bodyDef).CreateFixture(polyFixture);
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+        
+        for (var i = 0; i < 40; i++)
+        {
+            bodyDef.position.Set(MathUtil.rndRange(0, STAGE_WIDTH) / METER, -MathUtil.rndRange(50, 5000) / METER);
+            var body = world.CreateBody(bodyDef);
+            var s;
+            if (Math.random() > 0.5)
+            {
+                s = MathUtil.rndRange(70, 100);
+                circleFixture.shape.SetRadius(s / 2 / METER);
+                body.CreateFixture(circleFixture);
+                bodies.push(body);
+                
+                var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/ball.png"));
+                stage.addChild(ball);
+                ball.i = i;
+                ball.anchor.x = ball.anchor.y = 0.5;
+                ball.scale.x = ball.scale.y = s / 100;
+                
+                actors[actors.length] = ball;
+            }
+            else
+            {
+                s = MathUtil.rndRange(50, 100);
+                polyFixture.shape.SetAsBox(s / 2 / METER, s / 2 / METER);
+                body.CreateFixture(polyFixture);
+                bodies.push(body);
+                
+                var box = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/box.jpg"));
+                stage.addChild(box);
+                box.i = i;
+                box.anchor.x = box.anchor.y = 0.5;
+                box.scale.x = s / 100;
+                box.scale.y = s / 100;
+                
+                actors[actors.length] = box;
+            }
+        }
+        
+        document.addEventListener("mousedown", function(event) {
+            isBegin = true;
+            onMove(event);
+            document.addEventListener("mousemove", onMove, true);
+        }, true);
+        
+        document.addEventListener("mouseup", function(event) {
+            document.removeEventListener("mousemove", onMove, true);
+            isBegin = false;
+            touchX = undefined;
+            touchY = undefined;
+        }, true);
+        
+        renderer.view.addEventListener("touchstart", function(event) {
+            isBegin = true;
+            onMove(event);
+            renderer.view.addEventListener("touchmove", onMove, true);
+        }, true);
+        
+        renderer.view.addEventListener("touchend", function(event) {
+            renderer.view.removeEventListener("touchmove", onMove, true);
+            isBegin = false;
+            touchX = undefined;
+            touchY = undefined;
+        }, true);
+        
+        //update();
+        // start animating
+        raf(update);
+    }
+    
+    function getBodyAtMouse()
+    {
+        var mousePos = new Box2D.Common.Math.b2Vec2(touchX, touchY);
+        var aabb = new Box2D.Collision.b2AABB();
+        aabb.lowerBound.Set(touchX - 0.001, touchY - 0.001);
+        aabb.upperBound.Set(touchX + 0.001, touchY + 0.001);
+        
+        var body;
+        world.QueryAABB(
+            function (fixture)
+            {
+                if(fixture.GetBody().GetType() != Box2D.Dynamics.b2BodyDef.b2_staticBody)
+                {
+                    if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePos)) {
+                        body = fixture.GetBody();
+                        return false;
+                    }
+                }
+                return true;
+            }, aabb);
+        
+        return body;
+    }
+    
+    function onMove(event)
+    {
+        if (event["changedTouches"])
+        {
+            var touche = event["changedTouches"][0];
+            touchX = touche.pageX / METER;
+            touchY = touche.pageY / METER;
+        }
+        else {
+            touchX = event.clientX / METER;
+            touchY = event.clientY / METER;
+        }
+    }
+    
+    function update()
+    {
+        raf(update);
+        
+        if(isBegin && !mouseJoint)
+        {
+            var dragBody = getBodyAtMouse();
+            if(dragBody)
+            {
+                var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
+                jointDef.bodyA = world.GetGroundBody();
+                jointDef.bodyB = dragBody;
+                jointDef.target.Set(touchX, touchY);
+                jointDef.collideConnected = true;
+                jointDef.maxForce = 300.0 * dragBody.GetMass();
+                mouseJoint = world.CreateJoint(jointDef);
+                dragBody.SetAwake(true);
+            }
+        }
+        
+        if(mouseJoint)
+        {
+            if(isBegin)
+                mouseJoint.SetTarget(new Box2D.Common.Math.b2Vec2(touchX, touchY));
+            else {
+                world.DestroyJoint(mouseJoint);
+                mouseJoint = null;
+            }
+        }
+        
+        world.Step(1 / 60,  3,  3);
+        world.ClearForces();
+        
+        var n = actors.length;
+        for (var i = 0; i < n; i++)
+        {
+            var body  = bodies[i];
+            var actor = actors[i];
+            var position = body.GetPosition();
+            actor.position.x = position.x * 100;
+            actor.position.y = position.y * 100;
+            actor.rotation = body.GetAngle();
+        }
+        
+        renderer.render(stage);
+        //stats.update();
+    }
+
+    </script>
+
+  <body/>
+</html>

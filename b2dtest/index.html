@@ -23,7 +23,7 @@
     <script type="text/javascript" src="js/stats.min.js"></script>
     <script type="text/javascript" src="js/utils/MathUtil.js"></script>
     <script type="text/javascript">
-    var STAGE_WIDTH = window.innerWidth, STAGE_HEIGHT = window.innerHeight;
+    var STAGE_WIDTH, STAGE_HEIGHT;
     var METER = 100;
     
     var bodies = [], actors = [];
@@ -46,17 +46,25 @@
         container.appendChild(stats.domElement);
         stats.domElement.style.position = "absolute";
         */
+        STAGE_WIDTH = 256*4
+        STAGE_HEIGHT = 128*4
         
         stage = new PIXI.Stage(0x333333, true);
-        renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, undefined, false);
+        renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, null);
         //document.body.appendChild(renderer.view);
         var content = document.getElementById('content');
         content.appendChild(renderer.view);
         renderer.view.style.position = "absolute";
+        renderer.view.style.top = "40px";
+            renderer.view.style.left = "10px";
+            renderer.view.style.width = window.innerWidth-20+"px";
+            renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
         
         var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;
         loader.load();
+
+        window.addEventListener("resize", resize, false);
     }
     
     function onLoadAssets()
@@ -243,6 +251,11 @@
         
         renderer.render(stage);
         //stats.update();
+    }
+
+    function resize() {
+            renderer.view.style.width = window.innerWidth-20+"px";
+            renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
     }
 
     </script>

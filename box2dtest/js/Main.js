@@ -18,7 +18,7 @@
             || window.oRequestAnimationFrame
             || window.msRequestAnimationFrame
             || function(callback) { return window.setTimeout(callback, 1000 / 60); };
-            
+
     window.onload = onLoad();
     /*
 	(function init()
@@ -44,14 +44,17 @@
         const container = document.createElement("div");
         document.body.appendChild(container);
         
-        stats = new Stats();
+        /*stats = new Stats();
         container.appendChild(stats.domElement);
         stats.domElement.style.position = "absolute";
+        */
         
         stage = new PIXI.Stage(0x333333, true);
         
         renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, undefined, false);
-        document.body.appendChild(renderer.view);
+        //document.body.appendChild(renderer.view);
+        var content = document.getElementById('content');
+        content.appendChild(renderer.view);
         
         const loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;
@@ -241,6 +244,6 @@
         }
         
         renderer.render(stage);
-        stats.update();
+        //stats.update();
 	}
 })();

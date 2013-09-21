@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>p2.js</title>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script src="js/p2.min.js"></script>
+    <script src="js/pixi.min.js"></script>
+    <script src="js/Demo.js"></script>
+    <script src="js/PixiDemo.js"></script>
+    <link href="demo.css" rel="stylesheet"/>
+</head>
+<body>
+    <script>
+
+        var world = new p2.World({
+            doProfiling:true,
+            gravity : [0,-10],
+        });
+
+        var shape = new p2.Circle(1);
+        var p = new p2.Body({
+            mass: 1,
+            position: [0, 1.5],
+        });
+        p.addShape(shape);
+        world.addBody(p);
+
+        // Create ground
+        var planeShape = new p2.Plane();
+        var plane = new p2.Body({
+            angle:Math.PI/4,
+        });
+        plane.addShape(planeShape);
+        world.addBody(plane);
+
+        var demo = new PixiDemo(world, {w:window.innerWidth, h:window.innerHeight});
+
+        function update(){
+            if(!demo.paused)
+                world.step(1/60);
+            requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+
+        // add for non jquery
+        window.addEventListener('resize', function(){ demo.resize(window.innerWidth, window.innerHeight); });
+        var mousewheelevt=(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel";
+        window.addEventListener(mousewheelevt, ww, false);
+        function ww(e){demo.wheel(e);e.preventDefault() }
+
+    </script>
+</body>
+</html>

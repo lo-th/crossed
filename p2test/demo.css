@@ -1,0 +1,58 @@
+* {
+    margin:0;
+    padding:0;
+}
+
+body {
+    overflow: hidden;
+    background:black;
+    color : #cccccc; 
+			font-size:12px;
+			font-weight: bold;
+			font-family: 'Segoe UI';
+}
+
+#step {
+    position:absolute;
+    top:10px;
+    left:10px;
+    padding:4px;
+    background-color: #333333;
+}
+#contacts {
+    position:absolute;
+    top:10px;
+    left:150px;
+    padding:4px;
+    background-color: #333333;
+}
+#vecs {
+    position:absolute;
+    top:10px;
+    left:350px;
+    padding:4px;
+    background-color: #333333;
+}
+#mats {
+    position:absolute;
+    top:10px;
+    left:250px;
+    padding:4px;
+    background-color: #333333;
+}
+
+#link {
+    position:absolute;
+    top:10px;
+    left:250px;
+    padding:4px;
+    background-color: #000000;
+}
+#l {
+    background-color: #333333;
+    display:inline;
+    padding:4px;
+    margin:4px;
+}
+a { color:#ff9933; text-decoration:none; }
+

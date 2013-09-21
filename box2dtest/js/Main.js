@@ -12,10 +12,16 @@
     var touchX, touchY;
     var isBegin;
     var stats;
+    var raf = window.requestAnimationFrame
+            || window.webkitRequestAnimationFrame
+            || window.mozRequestAnimationFrame
+            || window.oRequestAnimationFrame
+            || window.msRequestAnimationFrame
+            || function(callback) { return window.setTimeout(callback, 1000 / 60); };
     
 	(function init()
 	{
-		if (!window.requestAnimationFrame) 
+		/*if (!window.requestAnimationFrame) 
 		{
 			window.requestAnimationFrame = (function() {
 				return window.webkitRequestAnimationFrame ||
@@ -26,7 +32,7 @@
 					window.setTimeout(callback, 1000 / 60);
 				};
 			})();
-		}
+		}*/
 		
 		window.onload = onLoad;
 	})();
@@ -40,13 +46,12 @@
         container.appendChild(stats.domElement);
         stats.domElement.style.position = "absolute";
         
-        stage = new PIXI.Stage(0xDDDDDD, true);
+        stage = new PIXI.Stage(0x333333, true);
         
         renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, undefined, false);
         document.body.appendChild(renderer.view);
         
-        const loader = new PIXI.AssetLoader(["assets/ball.png",
-                                             "assets/box.jpg"]);
+        const loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;
         loader.load();
 	}
@@ -146,7 +151,9 @@
             touchY = undefined;
         }, true);
         
-        update();
+        //update();
+        // start animating
+        raf(update);
     }
     
     function getBodyAtMouse()
@@ -189,7 +196,7 @@
     
 	function update()
 	{
-		requestAnimationFrame(update);
+		raf(update);
         
         if(isBegin && !mouseJoint)
         {

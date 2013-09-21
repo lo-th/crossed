@@ -42,10 +42,7 @@
     window.onload = init;
     
     function init() {
-        /*stats = new Stats();
-        container.appendChild(stats.domElement);
-        stats.domElement.style.position = "absolute";
-        */
+
         STAGE_WIDTH = 256*4
         STAGE_HEIGHT = 128*4
         
@@ -59,6 +56,10 @@
         renderer.view.style.left = "10px";
         renderer.view.style.width = window.innerWidth-20+"px";
         renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+
+        stats = new Stats();
+        container.appendChild(stats.domElement);
+        stats.domElement.style.position = "absolute";
         
         var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);
         loader.onComplete = onLoadAssets;
@@ -136,7 +137,7 @@
             }
         }
         
-        /*document.addEventListener("mousedown", function(event) {
+        document.addEventListener("mousedown", function(event) {
             isBegin = true;
             onMove(event);
             document.addEventListener("mousemove", onMove, true);
@@ -160,7 +161,7 @@
             isBegin = false;
             touchX = undefined;
             touchY = undefined;
-        }, true);*/
+        }, true);
         
         //update();
         // start animating
@@ -249,7 +250,7 @@
         }
         
         renderer.render(stage);
-        //stats.update();
+        stats.update();
         raf(update);
     }
 

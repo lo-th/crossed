@@ -58,7 +58,7 @@
         renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
 
         stats = new Stats();
-        container.appendChild(stats.domElement);
+        document.body.appendChild(stats.domElement);
         stats.domElement.style.position = "absolute";
         
         var loader = new PIXI.AssetLoader(["assets/ball.png", "assets/box.jpg"]);

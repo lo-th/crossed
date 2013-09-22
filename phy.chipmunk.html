@@ -100,7 +100,8 @@
             stats = new Stats();
             document.body.appendChild(stats.domElement);
             stats.domElement.style.position = "absolute";
-            stats.domElement.style.left = window.innerWidth-100+"px";
+            stats.domElement.style.top = "4px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
 
             var loader = new PIXI.AssetLoader(["img/ball.png", "img/box.png"]);
             loader.onComplete = onLoadAssets;
@@ -301,7 +302,7 @@
             renderer.view.style.width = window.innerWidth-20+"px";
             renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
             dd.x = STAGE_WIDTH/window.innerWidth;
-            stats.domElement.style.left = window.innerWidth-100+"px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
         }
 
         function tell(S) {

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Pixi Box2d</title>
+    <title>Pixi Box2d c++</title>
     <meta charset="utf-8" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -23,27 +23,44 @@
             font-weight: bold;
             font-family: 'Segoe UI';
         }
+        #option {
+            left: 300px;
+            top: 10px;
+            width: 300px;
+            height: 20px;
+            position:absolute;
+            display:block; 
+            color : #cccccc; 
+            font-size:12px;
+            font-weight: bold;
+            font-family: 'Segoe UI';
+        }
+        #mbutton { display:inline; margin: 5px; padding: 5px; cursor: pointer;  background:#000000;}
+        h3 { display:inline; }
+        a { color:#ff9933; text-decoration:none; }
+        a img{  border: 0; }
         #stats #fps { background: transparent !important }
         #stats #fps #fpsText { color: #8f8f8f !important }
         #stats #fps #fpsGraph { display: none }
     </style>
   </head>
   <body>
-
+    <div id="info"> <h3><a href="phy_b2d.html">Box2D</a></h3> vs <h3><a href="phy_b2d_c.html" style="color:#3399FF">Box2d c++</a></h3> vs <h3><a href="phy.chipmunk.html">Chipmunk</a></h3></div>
+    <div id="option"><div id='mbutton' onclick='newBox();'>add BOX</div><div id='mbutton' onclick='newCircle();'>add CIRCLE</div></div>
     <div id="content"></div>
-    <div id="info">Hello Box2d</div>
-    
-    <script type="text/javascript" src="js/box2d.min.js"></script>
+    <script type="text/javascript" src="js/phy/box2d.c.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
-    <script type="text/javascript" src="js/utils/MathUtil.js"></script>
+    <script type="text/javascript" src="js/MathUtil.js"></script>
     <script type="text/javascript">
         var STAGE_WIDTH, STAGE_HEIGHT;
         var METER = 100;
         var SCALE = 4;
         var STEP = 1/60;
         var MAX = 60;
-        
+
+        var mouseJointGroundBody
+        var myQueryCallback;
         var bodies = [], actors = [];
         var stage, renderer;
         var world, mouseJoint;
@@ -78,7 +95,7 @@
             document.body.appendChild(stats.domElement);
             stats.domElement.style.position = "absolute";
             stats.domElement.style.left = window.innerWidth-100+"px";
-            
+
             var loader = new PIXI.AssetLoader(["img/ball.png", "img/box.png"]);
             loader.onComplete = onLoadAssets;
             loader.load();
@@ -86,37 +103,59 @@
             window.addEventListener("resize", resize, false);
         }
 
+        function destroy(){
+            if ( world != null ) Box2D.destroy(world);
+        }
+
         function onLoadAssets() {
-            var gravity = new Box2D.Common.Math.b2Vec2(0, 10);
-            world = new Box2D.Dynamics.b2World(gravity,  true);
-            
-            var polyFixture = new Box2D.Dynamics.b2FixtureDef();
-            polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-            polyFixture.density = 1;
-            
-            var bodyDef = new Box2D.Dynamics.b2BodyDef();
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+            var gravity =  new Box2D.b2Vec2(0.0, 10.0) 
+            world = new Box2D.b2World(gravity, true);
+            mouseJointGroundBody = world.CreateBody( new Box2D.b2BodyDef() );
+
+            myQueryCallback = new Box2D.b2QueryCallback();
+    
+            Box2D.customizeVTable(myQueryCallback, [{
+            original: Box2D.b2QueryCallback.prototype.ReportFixture,
+            replacement:
+                function(thsPtr, fixturePtr) {
+                    var ths = new Box2D.wrapPointer( thsPtr, Box2D.b2QueryCallback );
+                    var fixture = new Box2D.wrapPointer( fixturePtr, Box2D.b2Fixture );
+                    if ( fixture.GetBody().GetType() != Box2D.b2_dynamicBody ) //mouse cannot drag static bodies around
+                        return true;
+                    if ( ! fixture.TestPoint( ths.m_point ) )
+                        return true;
+                    ths.m_fixture = fixture;
+                    return false;
+                }
+            }]);
+
+            var shape = new Box2D.b2PolygonShape();
+            var bodyDef = new Box2D.b2BodyDef();
+            bodyDef.set_type(Box2D.b2_staticBody);
             
             //down
-            polyFixture.shape.SetAsBox(10, 1);
-            bodyDef.position.Set(9, STAGE_HEIGHT / METER + 1);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
+            shape.SetAsBox(10, 1);
+            bodyDef.set_position(new Box2D.b2Vec2(9, STAGE_HEIGHT / METER + 1));
+            var b0 = world.CreateBody(bodyDef);
+            b0.CreateFixture(shape, 1);
             
             //left
-            polyFixture.shape.SetAsBox(1, 100);
-            bodyDef.position.Set(-1, 0);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
+            shape.SetAsBox(1, 100);
+            bodyDef.set_position(new Box2D.b2Vec2(-1, 0));
+            var b1 = world.CreateBody(bodyDef);
+            b1.CreateFixture(shape, 1);
             
             //right
-            bodyDef.position.Set(STAGE_WIDTH / METER + 1, 0);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
+            bodyDef.set_position(new Box2D.b2Vec2(STAGE_WIDTH / METER + 1, 0));
+            var b2 = world.CreateBody(bodyDef);
+            b2.CreateFixture(shape, 1);
 
             // add some object
             for (var i = 0; i < MAX; i++) {
                 var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 5000) / METER};
                 var size;
                 if(MAX>100) size = { w:MathUtil.rndRange(10, 30), h:MathUtil.rndRange(10, 30) };
-                else size = { w:MathUtil.rndRange(50, 100), h:MathUtil.rndRange(50, 100) };
+                else size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
 
                 if (Math.random() > 0.5) addCircle(pos, size);
                 else addBox(pos, size);
@@ -152,21 +191,32 @@
             raf(update);
         }
 
+        function newBox() {
+            var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 1000) / METER};
+            var size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+            addBox(pos, size);
+        }
+
+        function newCircle() {
+            var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 1000) / METER};
+            var size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+            addCircle(pos, size);
+        }
+
         function addBox(pos, size) {
             var width = size.w / METER /2;
             var height = size.h / METER /2;
-            var bodyDef = new Box2D.Dynamics.b2BodyDef()
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-            bodyDef.position.Set(pos.x, pos.y);
-
-            var fd = new Box2D.Dynamics.b2FixtureDef();
-            fd.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-            fd.shape.SetAsBox(width , height);
-            fd.restitution = 0.3;
-            fd.friction = 0.3;
-            fd.density = 1;
-
+            var shape = new Box2D.b2PolygonShape();
+            var bodyDef = new Box2D.b2BodyDef();
+            bodyDef.set_type(Box2D.b2_dynamicBody);
+            bodyDef.set_position(new Box2D.b2Vec2(pos.x, pos.y));
             var body = world.CreateBody(bodyDef);
+            var fd = new Box2D.b2FixtureDef();
+            shape.SetAsBox(width , height);
+            fd.set_shape(shape);
+            fd.set_restitution(0.3);
+            fd.set_friction(0.3);
+            fd.set_density(1.0);
             body.CreateFixture(fd);
        
             var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
@@ -175,24 +225,23 @@
             box.scale.x = size.w / 128;
             box.scale.y = size.h / 128;
 
-            bodies.push(body);     
+            bodies.push(body);
             actors.push(box);
         }
 
         function addCircle(pos, size) {
             var radius = size.w / 2 / METER;
-            var bodyDef = new Box2D.Dynamics.b2BodyDef()
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-            bodyDef.position.Set(pos.x, pos.y);
-
-            var fd = new Box2D.Dynamics.b2FixtureDef();
-            fd.shape = new Box2D.Collision.Shapes.b2CircleShape();
-            fd.shape.SetRadius(radius);
-            fd.restitution = 0.3;
-            fd.friction = 0.3;
-            fd.density = 1;
-                    
+            var shape = new Box2D.b2CircleShape();
+            var bodyDef = new Box2D.b2BodyDef();
+            bodyDef.set_type(Box2D.b2_dynamicBody);
+            bodyDef.set_position(new Box2D.b2Vec2(pos.x, pos.y));
             var body = world.CreateBody(bodyDef);
+            var fd = new Box2D.b2FixtureDef();
+            shape.set_m_radius(radius);
+            fd.set_shape(shape);
+            fd.set_restitution(0.3);
+            fd.set_friction(0.3);
+            fd.set_density(1.0);
             body.CreateFixture(fd);
 
             var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
@@ -205,23 +254,17 @@
         }
         
         function getBodyAtMouse() {
-            var mousePos = new Box2D.Common.Math.b2Vec2(touchX, touchY);
-            var aabb = new Box2D.Collision.b2AABB();
-            aabb.lowerBound.Set(touchX - 0.001, touchY - 0.001);
-            aabb.upperBound.Set(touchX + 0.001, touchY + 0.001);
-            
             var body;
-            world.QueryAABB(
-                function (fixture) {
-                    if(fixture.GetBody().GetType() != Box2D.Dynamics.b2BodyDef.b2_staticBody) {
-                        if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePos)) {
-                            body = fixture.GetBody();
-                            return false;
-                        }
-                    }
-                    return true;
-                }, aabb);
-            
+            var mousePos = new Box2D.b2Vec2(touchX, touchY);
+            var aabb = new Box2D.b2AABB();
+            aabb.set_lowerBound(new Box2D.b2Vec2(touchX - 0.001, touchY - 0.001));
+            aabb.set_upperBound(new Box2D.b2Vec2(touchX + 0.001, touchY + 0.001));
+
+            myQueryCallback.m_fixture = null;
+            myQueryCallback.m_point = new Box2D.b2Vec2(touchX, touchY);
+            world.QueryAABB(myQueryCallback, aabb);
+
+            if (myQueryCallback.m_fixture) body = myQueryCallback.m_fixture.GetBody();
             return body;
         }
         
@@ -235,41 +278,41 @@
                 touchY = (event.clientY-dd.py) / METER * dd.x;
             }
         }
-        
+
         function update() {
             if(isBegin && !mouseJoint) {
                 var dragBody = getBodyAtMouse();
-                if(dragBody) {
-                    var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
-                    jointDef.bodyA = world.GetGroundBody();
-                    jointDef.bodyB = dragBody;
-                    jointDef.target.Set(touchX, touchY);
-                    jointDef.collideConnected = true;
-                    jointDef.maxForce = 300.0 * dragBody.GetMass();
-                    mouseJoint = world.CreateJoint(jointDef);
+                if(dragBody!= null) {
+                    var jointDef = new Box2D.b2MouseJointDef();
+                    jointDef.set_bodyA(mouseJointGroundBody);
+                    jointDef.set_bodyB(dragBody);
+                    jointDef.set_target( new Box2D.b2Vec2(touchX, touchY) );
+                    jointDef.set_maxForce( 300 * dragBody.GetMass() );
+                    jointDef.set_collideConnected(true);
+                    mouseJoint = Box2D.castObject( world.CreateJoint(jointDef), Box2D.b2MouseJoint );
                     dragBody.SetAwake(true);
                 }
             }
             
             if(mouseJoint) {
-                if(isBegin)
-                    mouseJoint.SetTarget(new Box2D.Common.Math.b2Vec2(touchX, touchY));
-                else {
+                if(isBegin){
+                    mouseJoint.SetTarget(new Box2D.b2Vec2(touchX, touchY));
+                } else {
                     world.DestroyJoint(mouseJoint);
                     mouseJoint = null;
                 }
             }
             
-            world.Step( STEP, 3, 3);
-            world.ClearForces();
+            world.Step( STEP, 3, 2);
+            //world.ClearForces();
             
             var n = actors.length;
             for (var i = 0; i < n; i++) {
                 var body  = bodies[i];
                 var actor = actors[i];
                 var position = body.GetPosition();
-                actor.position.x = position.x * 100;
-                actor.position.y = position.y * 100;
+                actor.position.x = position.get_x() * 100;
+                actor.position.y = position.get_y() * 100;
                 actor.rotation = body.GetAngle();
             }
             

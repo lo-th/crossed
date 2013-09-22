@@ -94,11 +94,6 @@
             polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
             polyFixture.density = 1;
             
-            var circleFixture = new Box2D.Dynamics.b2FixtureDef();
-            circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
-            circleFixture.density = 1;
-            circleFixture.restitution = 0.7;
-            
             var bodyDef = new Box2D.Dynamics.b2BodyDef();
             bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
             
@@ -115,43 +110,16 @@
             //right
             bodyDef.position.Set(STAGE_WIDTH / METER + 1, 0);
             world.CreateBody(bodyDef).CreateFixture(polyFixture);
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-            
+
+            // add some object
             for (var i = 0; i < MAX; i++) {
-                bodyDef.position.Set(MathUtil.rndRange(0, STAGE_WIDTH) / METER, -MathUtil.rndRange(50, 5000) / METER);
-                var body = world.CreateBody(bodyDef);
-                var s;
-                if (Math.random() > 0.5) {
-                    if(MAX>100) s = MathUtil.rndRange(10, 30);
-                    else s = MathUtil.rndRange(50, 100);
-                    circleFixture.shape.SetRadius(s / 2 / METER);
-                    body.CreateFixture(circleFixture);
-                    bodies.push(body);
-                    
-                    var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
-                    stage.addChild(ball);
-                    ball.i = i;
-                    ball.anchor.x = ball.anchor.y = 0.5;
-                    ball.scale.x = ball.scale.y = s / 128;
-                    
-                    actors[actors.length] = ball;
-                }
-                else {
-                    if(MAX>100) s = MathUtil.rndRange(10, 30);
-                    else s = MathUtil.rndRange(40, 80);
-                    polyFixture.shape.SetAsBox(s / 2 / METER, s / 2 / METER);
-                    body.CreateFixture(polyFixture);
-                    bodies.push(body);
-                    
-                    var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
-                    stage.addChild(box);
-                    box.i = i;
-                    box.anchor.x = box.anchor.y = 0.5;
-                    box.scale.x = s / 128;
-                    box.scale.y = s / 128;
-                    
-                    actors[actors.length] = box;
-                }
+                var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 5000) / METER};
+                var size;
+                if(MAX>100) size = { w:MathUtil.rndRange(10, 30), h:MathUtil.rndRange(10, 30) };
+                else size = { w:MathUtil.rndRange(50, 100), h:MathUtil.rndRange(50, 100) };
+
+                if (Math.random() > 0.5) addCircle(pos, size);
+                else addBox(pos, size);
             }
             
             document.addEventListener("mousedown", function(event) {
@@ -182,6 +150,58 @@
             
             // start animating
             raf(update);
+        }
+
+        function addBox(pos, size) {
+            var width = size.w / METER /2;
+            var height = size.h / METER /2;
+            var bodyDef = new Box2D.Dynamics.b2BodyDef()
+            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+            bodyDef.position.Set(pos.x, pos.y);
+
+            var fd = new Box2D.Dynamics.b2FixtureDef();
+            fd.shape = new Box2D.Collision.Shapes.b2PolygonShape();
+            fd.shape.SetAsBox(width , height);
+            fd.restitution = 0.3;
+            fd.friction = 0.3;
+            fd.density = 1;
+
+            var body = world.CreateBody(bodyDef);
+            body.CreateFixture(fd);
+       
+            var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
+            stage.addChild(box);
+            box.anchor.x = box.anchor.y = 0.5;
+            box.scale.x = size.w / 128;
+            box.scale.y = size.h / 128;
+
+            bodies.push(body);     
+            actors.push(box);
+        }
+
+        function addCircle(pos, size) {
+            var radius = size.w / 2 / METER;
+            var bodyDef = new Box2D.Dynamics.b2BodyDef()
+            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+            bodyDef.position.Set(pos.x, pos.y);
+
+            var fd = new Box2D.Dynamics.b2FixtureDef();
+            fd.shape = new Box2D.Collision.Shapes.b2CircleShape();
+            fd.shape.SetRadius(radius);
+            fd.restitution = 0.3;
+            fd.friction = 0.3;
+            fd.density = 1;
+                    
+            var body = world.CreateBody(bodyDef);
+            body.CreateFixture(fd);
+
+            var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
+            stage.addChild(ball);
+            ball.anchor.x = ball.anchor.y = 0.5;
+            ball.scale.x = ball.scale.y = size.w / 128;
+
+            bodies.push(body);
+            actors.push(ball);
         }
         
         function getBodyAtMouse() {

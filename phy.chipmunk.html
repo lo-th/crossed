@@ -119,7 +119,7 @@
             world =  new cp.Space(); 
             world.gravity = cp.v(0, 10);
             world.sleepTimeThreshold = 0.5;
-            world.collisionSlop = 0.5;
+            world.collisionSlop = 0.01;
             world.sleepTimeThreshold = 0.5;
 
             mouseBody = new cp.Body(Infinity, Infinity);

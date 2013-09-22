@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Pixi Box2d</title>
+    <title>Pixi Chipmunk</title>
     <meta charset="utf-8" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -31,9 +31,8 @@
   <body>
 
     <div id="content"></div>
-    <div id="info">Hello Box2d</div>
-    
-    <script type="text/javascript" src="js/box2d.min.js"></script>
+    <div id="info">Hello Chipmunk</div>
+    <script type="text/javascript" src="js/cp.min.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
     <script type="text/javascript" src="js/utils/MathUtil.js"></script>
@@ -43,7 +42,9 @@
         var SCALE = 4;
         var STEP = 1/60;
         var MAX = 60;
-        
+
+        var mouseBody;
+        var mousePos;
         var bodies = [], actors = [];
         var stage, renderer;
         var world, mouseJoint;
@@ -51,6 +52,8 @@
         var isBegin;
         var stats;
         var dd = {x:1, y:1, px:10, py:40};
+        var GRABABLE_MASK_BIT = 1<<31;
+        var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
         var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame
                 || window.mozRequestAnimationFrame || window.oRequestAnimationFrame
                 || window.msRequestAnimationFrame
@@ -78,7 +81,7 @@
             document.body.appendChild(stats.domElement);
             stats.domElement.style.position = "absolute";
             stats.domElement.style.left = window.innerWidth-100+"px";
-            
+
             var loader = new PIXI.AssetLoader(["img/ball.png", "img/box.png"]);
             loader.onComplete = onLoadAssets;
             loader.load();
@@ -86,46 +89,54 @@
             window.addEventListener("resize", resize, false);
         }
 
+        function destroy(){
+
+        }
+
         function onLoadAssets() {
-            var gravity = new Box2D.Common.Math.b2Vec2(0, 10);
-            world = new Box2D.Dynamics.b2World(gravity,  true);
+            world =  new cp.Space(); 
+            world.gravity = cp.v(0, 10);
+            world.sleepTimeThreshold = 0.5;
+            world.collisionSlop = 0.5;
+            world.sleepTimeThreshold = 0.5;
             
-            var polyFixture = new Box2D.Dynamics.b2FixtureDef();
-            polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-            polyFixture.density = 1;
-            
-            var circleFixture = new Box2D.Dynamics.b2FixtureDef();
-            circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
-            circleFixture.density = 1;
-            circleFixture.restitution = 0.7;
-            
-            var bodyDef = new Box2D.Dynamics.b2BodyDef();
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
-            
-            //down
-            polyFixture.shape.SetAsBox(10, 1);
-            bodyDef.position.Set(9, STAGE_HEIGHT / METER + 1);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
-            
-            //left
-            polyFixture.shape.SetAsBox(1, 100);
-            bodyDef.position.Set(-1, 0);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
-            
-            //right
-            bodyDef.position.Set(STAGE_WIDTH / METER + 1, 0);
-            world.CreateBody(bodyDef).CreateFixture(polyFixture);
-            bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-            
+            mouseBody = new cp.Body(Infinity, Infinity);
+
+            var mx = STAGE_WIDTH / METER + 1;
+            var my = STAGE_HEIGHT / METER + 1;
+
+
+            var floor = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(0, my), cp.v(mx, my), 1));
+            floor.setElasticity(1);
+            floor.setFriction(1);
+            floor.setLayers(NOT_GRABABLE_MASK);
+
+            var wall1 = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(-1, 0), cp.v(-1, 100), 1));
+            wall1.setElasticity(1);
+            wall1.setFriction(1);
+            wall1.setLayers(NOT_GRABABLE_MASK);
+
+            var wall2 = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(mx, 0), cp.v(mx, 100), 1));
+            wall2.setElasticity(1);
+            wall2.setFriction(1);
+            wall2.setLayers(NOT_GRABABLE_MASK);
+
+        
             for (var i = 0; i < MAX; i++) {
-                bodyDef.position.Set(MathUtil.rndRange(0, STAGE_WIDTH) / METER, -MathUtil.rndRange(50, 5000) / METER);
-                var body = world.CreateBody(bodyDef);
+                var px = MathUtil.rndRange(0, STAGE_WIDTH) / METER;
+                var py = -MathUtil.rndRange(50, 5000) / METER;
+                var body;
                 var s;
                 if (Math.random() > 0.5) {
                     if(MAX>100) s = MathUtil.rndRange(10, 30);
                     else s = MathUtil.rndRange(50, 100);
-                    circleFixture.shape.SetRadius(s / 2 / METER);
-                    body.CreateFixture(circleFixture);
+                    var radius = s / 2 / METER;
+                    mass = 1;
+                    body = world.addBody(new cp.Body(mass, cp.momentForCircle(mass, 0, radius, cp.v(0, 0))));
+                    body.setPos(cp.v(px, py));
+                    var circle = world.addShape(new cp.CircleShape(body, radius, cp.v(0, 0)));
+                    circle.setElasticity(0.3);
+                    circle.setFriction(0.3);
                     bodies.push(body);
                     
                     var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
@@ -135,14 +146,20 @@
                     ball.scale.x = ball.scale.y = s / 128;
                     
                     actors[actors.length] = ball;
-                }
-                else {
+                } else {
                     if(MAX>100) s = MathUtil.rndRange(10, 30);
                     else s = MathUtil.rndRange(40, 80);
-                    polyFixture.shape.SetAsBox(s / 2 / METER, s / 2 / METER);
-                    body.CreateFixture(polyFixture);
+                    var width = s / METER;
+                    var height = s / METER;
+                    var mass = 1;
+                    body = world.addBody(new cp.Body(mass, cp.momentForBox(mass, width, height)));
+                    body.setPos(cp.v(px, py));
+                    body.setAngle(1);
+                    var shape = world.addShape(new cp.BoxShape(body, width, height));
+                    shape.setElasticity(0.3);
+                    shape.setFriction(0.3);
                     bodies.push(body);
-                    
+
                     var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
                     stage.addChild(box);
                     box.i = i;
@@ -185,23 +202,11 @@
         }
         
         function getBodyAtMouse() {
-            var mousePos = new Box2D.Common.Math.b2Vec2(touchX, touchY);
-            var aabb = new Box2D.Collision.b2AABB();
-            aabb.lowerBound.Set(touchX - 0.001, touchY - 0.001);
-            aabb.upperBound.Set(touchX + 0.001, touchY + 0.001);
-            
+            var point = cp.v(touchX, touchY);
+            var shape = world.pointQueryFirst(point, GRABABLE_MASK_BIT, cp.NO_GROUP);
             var body;
-            world.QueryAABB(
-                function (fixture) {
-                    if(fixture.GetBody().GetType() != Box2D.Dynamics.b2BodyDef.b2_staticBody) {
-                        if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePos)) {
-                            body = fixture.GetBody();
-                            return false;
-                        }
-                    }
-                    return true;
-                }, aabb);
-            
+            if(shape) body = shape.body;
+
             return body;
         }
         
@@ -214,43 +219,44 @@
                 touchX = (event.clientX-dd.px) / METER * dd.x;
                 touchY = (event.clientY-dd.py) / METER * dd.x;
             }
+            mousePos = cp.v(touchX, touchY);
         }
-        
+
         function update() {
             if(isBegin && !mouseJoint) {
                 var dragBody = getBodyAtMouse();
-                if(dragBody) {
-                    var jointDef = new Box2D.Dynamics.Joints.b2MouseJointDef();
-                    jointDef.bodyA = world.GetGroundBody();
-                    jointDef.bodyB = dragBody;
-                    jointDef.target.Set(touchX, touchY);
-                    jointDef.collideConnected = true;
-                    jointDef.maxForce = 300.0 * dragBody.GetMass();
-                    mouseJoint = world.CreateJoint(jointDef);
-                    dragBody.SetAwake(true);
+                if(dragBody!= null) {
+                     mouseJoint = new cp.PivotJoint(mouseBody, dragBody, cp.v(0,0), dragBody.world2Local(mousePos));
+
+                mouseJoint.maxForce = 300;
+                mouseJoint.errorBias = Math.pow(1 - 0.15, 60);
+                world.addConstraint(mouseJoint);
                 }
             }
             
             if(mouseJoint) {
-                if(isBegin)
-                    mouseJoint.SetTarget(new Box2D.Common.Math.b2Vec2(touchX, touchY));
-                else {
-                    world.DestroyJoint(mouseJoint);
+                if(isBegin){
+                    var newPoint = cp.v.lerp(mouseBody.p, mousePos, 0.25);
+                    mouseBody.v = cp.v.mult(cp.v.sub(newPoint, mouseBody.p), 60);
+                    mouseBody.p = newPoint;
+                } else {
+                    world.removeConstraint(mouseJoint);
                     mouseJoint = null;
                 }
             }
             
-            world.Step( STEP, 3, 3);
-            world.ClearForces();
+            world.step( STEP );
+            //world.ClearForces();
             
             var n = actors.length;
             for (var i = 0; i < n; i++) {
                 var body  = bodies[i];
                 var actor = actors[i];
-                var position = body.GetPosition();
+
+                var position = body.getPos();
                 actor.position.x = position.x * 100;
                 actor.position.y = position.y * 100;
-                actor.rotation = body.GetAngle();
+                actor.rotation = body.a;
             }
             
             renderer.render(stage);

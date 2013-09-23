@@ -28,7 +28,7 @@
     <script type="text/javascript" src="js/phy/p2.min.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
-    <script type="text/javascript" src="js/MathUtil.js"></script>
+    <script type="text/javascript" src="js/MathTools.js"></script>
     <script type="text/javascript">
         var STAGE_WIDTH, STAGE_HEIGHT;
         var METER = 100;
@@ -152,10 +152,10 @@
         function populate(n) {
             if(n) MAX = n;
             for (var i = 0; i < MAX; i++) {
-                var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 5000) / METER};
+                var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 5000) / METER};
                 var size;
-                if(MAX>100) size = { w:MathUtil.rndRange(10, 30), h:MathUtil.rndRange(10, 30) };
-                else size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+                if(MAX>100) size = { w:MathTools.randomRange(10, 30), h:MathTools.randomRange(10, 30) };
+                else size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
 
                 if (Math.random() > 0.5) addCircle(pos, size);
                 else addBox(pos, size);
@@ -173,14 +173,14 @@
         }
 
         function newBox() {
-            var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 100) / METER};
-            var size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+            var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 100) / METER};
+            var size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
             addBox(pos, size);
         }
 
         function newCircle() {
-            var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 100) / METER};
-            var size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+            var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 100) / METER};
+            var size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
             addCircle(pos, size);
         }
 

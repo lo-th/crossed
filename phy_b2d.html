@@ -58,7 +58,12 @@
     <div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;" class="unselectable">
         <a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
     </div>
-    <div id="info" class="unselectable"> <h3><a href="phy_b2d.html" style="color:#3399FF">Box2D</a></h3> vs <h3><a href="phy_b2d_c.html">Box2d c++</a></h3> vs <h3><a href="phy.chipmunk.html">Chipmunk</a></h3></div>
+    <div id="info" class="unselectable">
+        <h3><a href="phy_b2d.html" style="color:#3399FF">Box2D</a></h3> vs 
+        <h3><a href="phy_b2d_c.html">Box2d c++</a></h3> vs 
+        <h3><a href="phy_chipmunk.html">Chipmunk</a></h3> vs 
+        <h3><a href="phy_p2.html">P2</a></h3>
+    </div>
     <div id="option" class="unselectable">
         <div id='mbutton' onclick='newBox();'>BOX</div>
         <div id='mbutton' onclick='newCircle();'>CIRCLE</div>
@@ -107,6 +112,7 @@
             renderer.view.style.width = window.innerWidth-20+"px";
             renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
             renderer.view.style.border = "1px solid #222222";
+            //renderer.view.style.cursor = "pointer";
 
 
             stats = new Stats();

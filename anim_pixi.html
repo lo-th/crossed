@@ -5,37 +5,21 @@
 	<meta charset="utf-8" />
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<style>
-		body {
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-			background: #333333;
-		}
-		#info {
-			left: 10px;
-			top: 10px;
-			width: 100%;
-			position:absolute;
-			display:block;
-			color : #cccccc; 
-			font-size:12px;
-			font-weight: bold;
-			font-family: 'Segoe UI';
-		}
-		h3 { display:inline; }
-		a { color:#ff9933; text-decoration:none;}
-		a img{ border: 0; }
-	</style>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	
 </head>
 <body>
-	<div id="content"></div>
-	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;">
+	<div id="content" class="unselectable"></div>
+	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;" class="unselectable">
 		<a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
 	</div>
-	<div id="info"> <h3><a href="anim.html">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3></div>
-	
+	<div id="info" class="unselectable">
+		<h3><a href="anim.html">DIV anim</a></h3> vs 
+		<h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs 
+		<h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs 
+		<h3><a href="anim_pixi.html" style="color:#3399FF">PIXI anim</a></h3>
+	</div>
+	<script type="text/javascript" src="js/stats.min.js"></script>
 	<script src="js/pixi.js"></script>
 	<script type="text/javascript">
 	    
@@ -43,6 +27,7 @@
 		var bg = [], bgmax;
 		var content, stage, renderer;
 		var SCALE = 1; // resolution multiplier
+		var stats;
 
 		var assetsToLoader = [ "img/anim-0.json", "img/anim-1.json", "img/anim-2.json", "img/anim-3.json"];
 		var loader;
@@ -64,6 +49,12 @@
 			loader = new PIXI.AssetLoader(assetsToLoader);
 			loader.onComplete = onAssetsLoaded;
 			loader.load();
+
+			stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "4px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
 		
 			/*bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 1 });
 			bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 2 });
@@ -141,7 +132,7 @@
 				t[i].update();
 			}*/
 		    renderer.render(stage);
-
+		    stats.update();
 		    raf(update);
 		}
 
@@ -179,6 +170,7 @@
 		function resize() {
 			renderer.view.style.width = window.innerWidth-20+"px";
 			renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+			stats.domElement.style.left = window.innerWidth-70+"px";
 		}
 
 		function rand(min, max) { return (Math.random()*(max-min))+min; };

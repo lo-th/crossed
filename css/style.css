@@ -1,0 +1,44 @@
+body {
+    background-color: #1b1b1b;
+    margin: 0px;
+    overflow: hidden;
+    color : #cccccc; 
+    font-size:12px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+    position: fixed;
+    width: 100%;
+    height:100%;
+}
+.unselectable{
+    user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+}
+#info {
+    left: 10px;
+    top: 10px;
+    width: 500px;
+    height: 20px;
+    position:absolute;
+    display:block; 
+}
+#option {
+    left: 300px;
+    top: 10px;
+    width: 300px;
+    position:absolute;
+    display:block;
+    margin: 2px; padding: 0px;
+}
+#mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333; color:#FFFFFF;}
+#mbutton:hover {background:#ff7600; color:#000000;}
+h3 { display:inline; }
+a { color:#ff7600; text-decoration:none; }
+a img{  border: 0; }
+#stats #fps { background: transparent !important }
+#stats #fps #fpsText { color: #8f8f8f !important }
+#stats #fps #fpsGraph { display: none }

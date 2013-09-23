@@ -5,55 +5,9 @@
     <meta charset="utf-8" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <style>
-        body {
-            background-color: #1b1b1b;
-            margin: 0px;
-            overflow: hidden;
-            color : #cccccc; 
-            font-size:12px;
-            font-weight: bold;
-            font-family: 'Segoe UI';
-            position: fixed;
-            width: 100%;
-            height:100%;
-        }
-        .unselectable{
-            user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            -o-user-select: none;
-        }
-        #info {
-            left: 10px;
-            top: 10px;
-            width: 300px;
-            height: 20px;
-            position:absolute;
-            display:block; 
-        }
-        #option {
-            left: 300px;
-            top: 10px;
-            width: 300px;
-            position:absolute;
-            display:block;
-            margin: 2px; padding: 0px;
-        }
-        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333; color:#FFFFFF;}
-        #mbutton:hover {background:#ff7600; color:#000000;}
-        h3 { display:inline; }
-        a { color:#ff7600; text-decoration:none; }
-        a img{  border: 0; }
-        #stats #fps { background: transparent !important }
-        #stats #fps #fpsText { color: #8f8f8f !important }
-        #stats #fps #fpsGraph { display: none }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
   </head>
   <body>
-    
     <div id="content" class="unselectable"></div>
     <div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;" class="unselectable">
         <a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>

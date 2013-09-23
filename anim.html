@@ -5,48 +5,25 @@
 	<title>Div Animation</title>
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<style type="text/css">
-		body {
-			margin: 0px;
-			overflow: hidden;
-			background: #333333;
-			-ms-high-contrast-adjust: none;
-		}
-		#content {
-			width:256px;
-			height:128px;
-			position:absolute;
-			display:block;
-
-		}
-		#info {
-			left: 10px;
-			top: 10px;
-			width: 100%;
-			position:absolute;
-			display:block; 
-			color : #cccccc; 
-			font-size:12px;
-			font-weight: bold;
-			font-family: 'Segoe UI';
-		}
-		h3 { display:inline; }
-		a { color:#ff9933; text-decoration:none; }
-		a img{  border: 0; }
-	</style>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-	<div id="content"></div>
-	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: 0;">
+	<div id="content" class="unselectable"></div>
+	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: 0;" class="unselectable">
 		<a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
 	</div>
-	<div id="info"> <h3><a href="anim.html" style="color:#3399FF">DIV anim</a></h3> vs <h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs <h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs <h3><a href="anim_pixi.html">PIXI anim</a></h3></div>
-	
-	
+	<div id="info" class="unselectable">
+		<h3><a href="anim.html" style="color:#3399FF">DIV anim</a></h3> vs 
+		<h3><a href="anim_canvas.html">CANVAS anim</a></h3> vs 
+		<h3><a href="anim_webgl.html">WEBGL anim</a></h3> vs 
+		<h3><a href="anim_pixi.html">PIXI anim</a></h3>
+	</div>
+	<script type="text/javascript" src="js/stats.min.js"></script>
 	<script type="text/javascript">
 	    var t = [], tmax;
 		var bg = [], bgmax;
 	    var content;
+	    var stats;
 
 	    window.onload = init;
 
@@ -64,6 +41,12 @@
 			bgmax = bg.length;
 	        tmax = t.length;
 
+	        stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "4px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
+
 	        window.addEventListener("resize", resize, false);
 	        resize();
 	        raf(update);
@@ -77,6 +60,7 @@
 			for(i=0; i<tmax; i++){
 				t[i].update();
 			}
+			stats.update();
 			raf(update);
 		}
 
@@ -151,6 +135,7 @@
 			content.style.MozTransform = trans;
 			content.style.msTransform = trans;
 			content.style.transform= trans;
+			stats.domElement.style.left = window.innerWidth-70+"px";
 		}
 
 		var raf = window.requestAnimationFrame

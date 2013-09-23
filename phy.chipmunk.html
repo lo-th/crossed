@@ -14,6 +14,9 @@
             font-size:12px;
             font-weight: bold;
             font-family: 'Segoe UI';
+            position: fixed;
+            width: 100%;
+            height:100%;
         }
         .unselectable{
             user-select: none;
@@ -39,7 +42,8 @@
             display:block;
             margin: 2px; padding: 0px;
         }
-        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333;}
+        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333; color:#FFFFFF;}
+        #mbutton:hover {background:#ff7600; color:#000000;}
         h3 { display:inline; }
         a { color:#ff7600; text-decoration:none; }
         a img{  border: 0; }
@@ -55,7 +59,11 @@
         <a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
     </div>
     <div id="info" class="unselectable"> <h3><a href="phy_b2d.html">Box2D</a></h3> vs <h3><a href="phy_b2d_c.html">Box2d c++</a></h3> vs <h3><a href="phy.chipmunk.html" style="color:#3399FF">Chipmunk</a></h3></div>
-    <div id="option" class="unselectable"><div id='mbutton' onclick='newBox();'>BOX</div><div id='mbutton' onclick='newCircle();'>CIRCLE</div></div>
+    <div id="option" class="unselectable">
+        <div id='mbutton' onclick='newBox();'>BOX</div>
+        <div id='mbutton' onclick='newCircle();'>CIRCLE</div>
+        <div id='mbutton' onclick='reset();'>RESET</div>
+    </div>
     <script type="text/javascript" src="js/phy/cp.min.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
@@ -224,7 +232,7 @@
             box.scale.x = size.w / 128;
             box.scale.y = size.h / 128;
 
-            bodies.push(body);
+            bodies.push(shape);
             actors.push(box);
         }
 
@@ -233,16 +241,16 @@
             mass = 1;
             var body = world.addBody(new cp.Body(mass, cp.momentForCircle(mass, 0, radius, cp.v(0, 0))));
             body.setPos(cp.v(pos.x, pos.y));
-            var circle = world.addShape(new cp.CircleShape(body, radius, cp.v(0, 0)));
-            circle.setElasticity(0.3);
-            circle.setFriction(0.3);
+            var shape = world.addShape(new cp.CircleShape(body, radius, cp.v(0, 0)));
+            shape.setElasticity(0.3);
+            shape.setFriction(0.3);
             
             var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
             stage.addChild(ball);
             ball.anchor.x = ball.anchor.y = 0.5;
             ball.scale.x = ball.scale.y = size.w / 128;
 
-            bodies.push(body);
+            bodies.push(shape);
             actors.push(ball);
         }
         
@@ -295,7 +303,7 @@
             
             var n = actors.length;
             for (var i = 0; i < n; i++) {
-                var body  = bodies[i];
+                var body  = bodies[i].body;
                 var actor = actors[i];
 
                 var position = body.getPos();
@@ -307,6 +315,18 @@
             renderer.render(stage);
             stats.update();
             raf(update);
+        }
+
+        function reset(){
+            for (var i = actors.length- 1; i >= 0; i--) {
+                stage.removeChild(actors[i]);
+                world.removeBody(bodies[i].body);
+                world.removeShape(bodies[i]);
+                actors.splice(i,1);
+                bodies.splice(i,1);
+            }
+            bodies = [];
+            actors = [];
         }
 
         function resize() {

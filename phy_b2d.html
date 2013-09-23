@@ -14,14 +14,17 @@
             font-size:12px;
             font-weight: bold;
             font-family: 'Segoe UI';
+            position: fixed;
+            width: 100%;
+            height:100%;
         }
         .unselectable{
-          -webkit-user-select: none;
-          -khtml-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          -o-user-select: none;
-          user-select: none; 
+            user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -o-user-select: none;
         }
         #info {
             left: 10px;
@@ -39,7 +42,8 @@
             display:block;
             margin: 2px; padding: 0px;
         }
-        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333;}
+        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333; color:#FFFFFF;}
+        #mbutton:hover {background:#ff7600; color:#000000;}
         h3 { display:inline; }
         a { color:#ff7600; text-decoration:none; }
         a img{  border: 0; }
@@ -55,7 +59,11 @@
         <a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
     </div>
     <div id="info" class="unselectable"> <h3><a href="phy_b2d.html" style="color:#3399FF">Box2D</a></h3> vs <h3><a href="phy_b2d_c.html">Box2d c++</a></h3> vs <h3><a href="phy.chipmunk.html">Chipmunk</a></h3></div>
-    <div id="option" class="unselectable"><div id='mbutton' onclick='newBox();'>BOX</div><div id='mbutton' onclick='newCircle();'>CIRCLE</div></div>
+    <div id="option" class="unselectable">
+        <div id='mbutton' onclick='newBox();'>BOX</div>
+        <div id='mbutton' onclick='newCircle();'>CIRCLE</div>
+        <div id='mbutton' onclick='reset();'>RESET</div>
+    </div>
     <script type="text/javascript" src="js/phy/box2d.min.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
@@ -318,6 +326,17 @@
             renderer.render(stage);
             stats.update();
             raf(update);
+        }
+
+        function reset(){
+            for (var i = actors.length- 1; i >= 0; i--) {
+                stage.removeChild(actors[i]);
+                world.DestroyBody(bodies[i]);
+                actors.splice(i,1);
+                bodies.splice(i,1);
+            }
+            bodies = [];
+            actors = [];
         }
 
         function resize() {

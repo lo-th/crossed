@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Pixi Box2d</title>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        body {
+            background-color: #1b1b1b;
+            margin: 0px;
+            overflow: hidden;
+            color : #cccccc; 
+            font-size:12px;
+            font-weight: bold;
+            font-family: 'Segoe UI';
+        }
+        .unselectable{
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          -o-user-select: none;
+          user-select: none; 
+        }
+        #info {
+            left: 10px;
+            top: 10px;
+            width: 300px;
+            height: 20px;
+            position:absolute;
+            display:block; 
+        }
+        #option {
+            left: 300px;
+            top: 10px;
+            width: 300px;
+            position:absolute;
+            display:block;
+            margin: 2px; padding: 0px;
+        }
+        #mbutton { display:inline; margin: 4px; padding: 8px; cursor: pointer; background:#333333;}
+        h3 { display:inline; }
+        a { color:#ff7600; text-decoration:none; }
+        a img{  border: 0; }
+        #stats #fps { background: transparent !important }
+        #stats #fps #fpsText { color: #8f8f8f !important }
+        #stats #fps #fpsGraph { display: none }
+    </style>
+  </head>
+  <body>
+  <div id="info" class="unselectable"> Hello Multi</div>
+<script src = 'http://loadfive.com/cenny.js'></script>
+<script type="text/javascript">
+var cenny = new Cenny() 
+
+var data = "hello world!";
+cenny.save(data, 3);
+cenny.add("Yooo", 3, 1) //0 = before, 1 = after
+
+cenny.get('alertIt', 3);
+var alertIt = function(stuff) {
+    alert(stuff);
+};  
+cenny.clear(3);
+</script>
+  <body/>
+</html>

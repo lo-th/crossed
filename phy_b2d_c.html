@@ -63,6 +63,8 @@
         <div id='mbutton' onclick='newBox();'>BOX</div>
         <div id='mbutton' onclick='newCircle();'>CIRCLE</div>
         <div id='mbutton' onclick='reset();'>RESET</div>
+        <div id='mbutton' onclick='basicTest();'>60</div>
+        <div id='mbutton' onclick='stressTest();'>1000</div>
     </div>
     <script type="text/javascript" src="js/phy/box2d.c.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
@@ -171,15 +173,7 @@
             b2.CreateFixture(shape, 1);
 
             // add some object
-            for (var i = 0; i < MAX; i++) {
-                var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 5000) / METER};
-                var size;
-                if(MAX>100) size = { w:MathUtil.rndRange(10, 30), h:MathUtil.rndRange(10, 30) };
-                else size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
-
-                if (Math.random() > 0.5) addCircle(pos, size);
-                else addBox(pos, size);
-            }
+            populate();
             
             document.addEventListener("mousedown", function(event) {
                 isBegin = true;
@@ -209,6 +203,29 @@
             
             // start animating
             raf(update);
+        }
+
+        function populate(n) {
+            if(n) MAX = n;
+            for (var i = 0; i < MAX; i++) {
+                var pos = {x: MathUtil.rndRange(0, STAGE_WIDTH) / METER, y:-MathUtil.rndRange(50, 5000) / METER};
+                var size;
+                if(MAX>100) size = { w:MathUtil.rndRange(10, 30), h:MathUtil.rndRange(10, 30) };
+                else size = { w:MathUtil.rndRange(40, 70), h:MathUtil.rndRange(40, 70) };
+
+                if (Math.random() > 0.5) addCircle(pos, size);
+                else addBox(pos, size);
+            }
+        }
+        
+        function basicTest() {
+            reset();
+            populate(60);
+        }
+
+        function stressTest() {
+            reset();
+            populate(1000);
         }
 
         function newBox() {

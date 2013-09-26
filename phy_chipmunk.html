@@ -25,6 +25,9 @@
         <div id='mbutton' onclick='basicTest();'>60</div>
         <div id='mbutton' onclick='stressTest();'>1000</div>
     </div>
+    <div id="source" class="unselectable">
+        <a href="https://github.com/josephg/Chipmunk-js" target="_blank">Chipmunk-js</a> 59 kb
+    </div>
     <script type="text/javascript" src="js/phy/cp.min.js"></script>
     <script type="text/javascript" src="js/pixi.min.js"></script>
     <script type="text/javascript" src="js/stats.min.js"></script>
@@ -94,7 +97,8 @@
             stage.addChild(tiling);
 
             // init physics engine
-            world =  new cp.Space(); 
+            world =  new cp.Space();
+            world.iterations = 10;
             world.gravity = cp.v(0, 10);
             world.sleepTimeThreshold = 0.5;
             world.collisionSlop = 0.01;
@@ -106,18 +110,18 @@
             var my = STAGE_HEIGHT / METER + 1;
 
             var floor = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(0, my), cp.v(mx, my), 1));
-            floor.setElasticity(1);
-            floor.setFriction(1);
+            floor.setElasticity(0.3);
+            floor.setFriction(0.3);
             floor.setLayers(NOT_GRABABLE_MASK);
 
             var wall1 = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(-1, 0), cp.v(-1, 100), 1));
-            wall1.setElasticity(1);
-            wall1.setFriction(1);
+            wall1.setElasticity(0.3);
+            wall1.setFriction(0.3);
             wall1.setLayers(NOT_GRABABLE_MASK);
 
             var wall2 = world.addShape(new cp.SegmentShape(world.staticBody, cp.v(mx, 0), cp.v(mx, 100), 1));
-            wall2.setElasticity(1);
-            wall2.setFriction(1);
+            wall2.setElasticity(0.3);
+            wall2.setFriction(0.3);
             wall2.setLayers(NOT_GRABABLE_MASK);
 
             // add some object

@@ -35,8 +35,11 @@ body {
     display:block; 
     text-align : right;
 }
+#home {
+    padding: 0px 10px;
+}
 #option {
-    left: 300px;
+    left: 320px;
     top: 10px;
     width: 300px;
     position:absolute;

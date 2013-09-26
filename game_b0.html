@@ -1,0 +1,329 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Pixi Animation</title>
+	<meta charset="utf-8" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	
+</head>
+<body>
+	<div id="content" class="unselectable"></div>
+	<div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;" class="unselectable">
+		<a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
+	</div>
+	<div id="info" class="unselectable">
+		<a href="index.html"><img id="home" src="img/home.png" onmouseover="this.src='img/home2.png'" onmouseout="this.src='img/home.png'" /></a>
+		<h3>Platformer basic</h3>
+	</div>
+	<script type="text/javascript" src="js/stats.min.js"></script>
+	<script src="js/pixi.min.js"></script>
+	<script type="text/javascript">
+	    var b = [], bmax;
+	    var mb = [];
+	    var p;
+		var t = [], tmax;
+		var bg = [], bgmax;
+		var content, stage, renderer;
+		var SCALE = 4; // resolution multiplier
+		var stats;
+		var width = 256*SCALE;
+	    var height = 128*SCALE;
+	    var player = {
+	        x: width / 2,
+	        y: height - 100,
+	        w: 25,
+	        h: 54,
+	        speed: 6,//3
+	        velX: 0,
+	        velY: 0,
+	        jumping: false,
+	        grounded: false, 
+	        direction:"right"
+	    };
+	    var keys = [];
+	    var friction = 0.8//0.9;
+	    var gravity = 0.6;
+	    var boxes = [], boxesmax;
+
+	    // dimensions
+		boxes.push({ x: 0, y: 0, w: 10, h: height });
+		boxes.push({ x: 0,  y: height - 2, w: width, h: 50 });
+		boxes.push({ x: width - 10,  y: 0, w: 50, h: height });
+
+		boxes.push({ x: 0, y: height-60, w: width, h: 10 });
+
+		boxes.push({ x: 800, y: 300, w: 80, h: 80, move:true });
+		boxes.push({ x: 500, y: 200, w: 80, h: 80, move:true });
+		boxes.push({ x: 360, y:350, w: 80, h: 64, move:true });
+		boxes.push({ x: 270,  y:350 , w: 40, h: 64, move:true });
+
+		//mBoxes.push({ x: 270,  y:350 , w: 64, h: 64 });
+
+		var assetsToLoader = [ "img/anim-0.json", "img/anim-1.json", "img/anim-2.json", "img/anim-3.json"];
+		var loader;
+
+		window.onload = init;
+
+		function init() {
+			stage = new PIXI.Stage(0x333333, true);
+			renderer = PIXI.autoDetectRenderer(width, height, null);
+			content = document.getElementById('content');
+
+			content.appendChild(renderer.view);
+			renderer.view.style.position = "absolute";
+			renderer.view.style.top = "40px";
+			renderer.view.style.left = "10px";
+			renderer.view.style.width = window.innerWidth-20+"px";
+			renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+
+			stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "4px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
+
+            loader = new PIXI.AssetLoader(assetsToLoader);
+			loader.onComplete = onAssetsLoaded;
+			loader.load();
+
+			window.addEventListener("resize", resize, false);
+	    }
+
+	    document.body.addEventListener("keydown", function (e) { keys[e.keyCode] = true; });
+		document.body.addEventListener("keyup", function (e) { keys[e.keyCode] = false; });
+
+	    function onAssetsLoaded() {
+	    	var i;
+	    	// add bg
+	    	bg[0] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-1.png", speed : 0.25 });
+			bg[1] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-2.png", speed : 0.5 });
+			bg[2] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-3.png", speed : 1 });
+			// create an array to store the textures
+			var anim = [];
+			for(var j=0; j<4; j++){
+				anim[j] = [];
+			}
+			var texture;
+			for ( i=0; i < 15; i++) 
+			{
+			 	texture = PIXI.Texture.fromFrame("anim-0 " + (i+1));
+			 	anim[0].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-1 " + (i+1));
+			 	anim[1].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-2 " + (i+1));
+			 	anim[2].push(texture);
+
+			 	texture = PIXI.Texture.fromFrame("anim-3 " + (i+1));
+			 	anim[3].push(texture);
+			};
+
+			var posy = 38;
+			for ( i = 0; i < 1; i++) {
+				posy+=0.5;
+				t[i] = new PIXI.MovieClip(anim[Math.floor(Math.random()*4)]);
+				//t[i].position.x = (rand(0, 200))*SCALE;//Math.random() * 800;
+				//t[i].position.y = posy*SCALE;//Math.random() * 600;
+				//t[i].anchor.x = 0.5;
+				//t[i].anchor.y = 0.5;
+				//t[i].rotation = Math.random() * Math.PI;
+				//t[i].scale.x = t[i].scale.y = (0.4+((posy-38)/50))*SCALE;
+				t[i].gotoAndPlay(Math.random() * 15);
+				
+				stage.addChild(t[i]);
+			}
+
+			boxesmax = boxes.length;
+
+			for ( i=0; i < boxesmax; i++){
+				if(boxes[i].move === true) b[i] = drawBox(boxes[i], 0xff9900);
+				else b[i] = drawBox(boxes[i]);
+			}
+			
+			p = drawBox({x:0, y:0, w:player.w, h:player.h}, 0x00ff00);
+
+			bg[3] = new SpriteAnim({ w: 256, h: 128, frames: 0, sprite: "img/bg-4.png", speed : 2 });
+
+			bgmax = bg.length;
+			tmax = t.length;
+			
+			// start animating
+			raf(update);
+		}
+
+		function drawBox(shape, color){
+			var sprite = new PIXI.Graphics();
+			var lineWidth = 1;
+			sprite.lineStyle(lineWidth, color || 0xff0000, 1);
+			sprite.drawRect(shape.x,shape.y,shape.w,shape.h);
+			stage.addChild(sprite);
+			return sprite;
+		}
+
+		function update() {
+			var i;
+			// check keys
+		    if (keys[38] || keys[32]) {
+		        // up arrow or space
+		        if (!player.jumping && player.grounded) {
+		            player.jumping = true;
+		            player.grounded = false;
+		            player.velY = -player.speed * 2;
+
+		        }
+		    }
+		    if (keys[39]) {
+		        // right arrow
+		        if (player.velX < player.speed) {
+		            player.velX++;
+		            player.direction = "right";
+		        }
+		    }
+		    if (keys[37]) {
+		        // left arrow
+		        if (player.velX > -player.speed) {
+		            player.velX--;
+		            player.direction = "left";
+		        }
+		    }
+
+		    if(player.velX<0.1 && player.velX>-0.1 ){
+		    	player.velX = 0;
+		    	t[0].stop();
+		    } else {
+		    	t[0].play();
+		    }
+
+		    player.velX *= friction;
+		    player.velY += gravity;
+
+		    player.grounded = false;
+		    for ( i = 0; i < boxesmax; ++i) {
+
+		    	if(boxes[i].move == true){
+		    		boxes[i].x -=player.velX;
+		    		b[i].position.x -=player.velX;
+		    	}
+
+		        
+		        var dir = colCheck(player, boxes[i]);
+
+		        if (dir === "l" || dir === "r") {
+		            player.velX = 0;
+		            player.jumping = false;
+		        } else if (dir === "b") {
+		            player.grounded = true;
+		            player.jumping = false;
+		        } else if (dir === "t") {
+		            player.velY *= -1;
+		        }
+
+		    }
+		    
+		    if(player.grounded){
+		         player.velY = 0;
+		    }
+
+		    
+		    
+		    player.x += player.velX;
+		    player.y += player.velY;
+
+		    
+		    t[0].position.y = player.y-5;
+		    if(player.direction === "left"){
+		    	t[0].scale.x=(-1);
+		    	t[0].position.x = player.x+40;
+		    } else if (player.direction === "right"){
+		    	t[0].scale.x=(1);
+		    	t[0].position.x = player.x-15;
+		    }
+		    
+		    p.position.x = player.x;
+		    p.position.y = player.y;
+
+		    //tell(player.velX + "/" + player.velY)
+
+
+			
+			for(i=0; i<bgmax; i++){
+				bg[i].update(player.velX);
+			}
+
+		    renderer.render(stage);
+		    stats.update();
+		    raf(update);
+		}
+
+		function colCheck(shapeA, shapeB) {
+		    // get the vectors to check against
+		    var vX = (shapeA.x + (shapeA.w * 0.5)) - (shapeB.x + (shapeB.w * 0.5)),
+		        vY = (shapeA.y + (shapeA.h * 0.5)) - (shapeB.y + (shapeB.h * 0.5)),
+		        // add the half widths and half heights of the objects
+		        hWidths = (shapeA.w * 0.5) + (shapeB.w * 0.5),
+		        hHeights = (shapeA.h * 0.5) + (shapeB.h * 0.5),
+		        colDir = null;
+
+		    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+		    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+		        // figures out on which side we are colliding (top, bottom, left, or right)
+		        var oX = hWidths - Math.abs(vX),
+		            oY = hHeights - Math.abs(vY);
+		        if (oX >= oY) {
+		            if (vY > 0) { colDir = "t"; shapeA.y += oY; } else {  colDir = "b"; shapeA.y -= oY; }
+		        } else {
+		            if (vX > 0) { colDir = "l"; shapeA.x += oX; } else { colDir = "r"; shapeA.x -= oX; }
+		        }
+		    }
+		    return colDir;
+		}
+
+		function SpriteAnim(options) {
+			this.x = options.x || 0;
+		  	this.y = options.y || 0;
+		  	this.scale = options.scale || 1;
+		  	this.w = options.w;
+		  	this.h = options.h;
+		  	this.frames = options.frames ;
+		  	this.n = rand(0, this.frames);
+		  	var texture = PIXI.Texture.fromImage(options.sprite);
+		  	
+			this.tiling = new PIXI.TilingSprite(texture, (this.w*this.scale)*SCALE, (this.h*this.scale)*SCALE);
+			this.tiling.position.x = this.x*SCALE;
+		  	this.tiling.position.y = this.y*SCALE;
+			this.speed = options.speed;
+			
+			this.tiling.tileScale.x = SCALE*this.scale;
+			this.tiling.tileScale.y = SCALE*this.scale;
+
+			stage.addChild(this.tiling);
+
+			this.update = function (n) {
+				this.tiling.tilePosition.x -= (this.speed*n);
+			}
+		}
+
+		function resize() {
+			renderer.view.style.width = window.innerWidth-20+"px";
+			renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+			stats.domElement.style.left = window.innerWidth-70+"px";
+		}
+
+		function rand(min, max) { return (Math.random()*(max-min))+min; };
+
+		function tell(s) { document.getElementById('info').innerHTML = s; };
+
+		var raf = window.requestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| window.oRequestAnimationFrame
+			|| window.msRequestAnimationFrame
+			|| function(callback) { return window.setTimeout(callback, 1000 / 60); };
+
+	</script>
+
+	</body>
+</html>

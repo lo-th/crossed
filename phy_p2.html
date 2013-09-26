@@ -97,8 +97,8 @@
 
             world = new p2.World({ doProfiling:false, gravity : [0,10] });//
             //var initialState = world.toJSON();
-            world.solver.setSpookParams(1e4,4);
-            world.solver.iterations = 20;
+            world.solver.setSpookParams(1e5,3);
+            world.solver.iterations = 100;
             //world.solver.tolerance = 1;
 
             var mx = STAGE_WIDTH / METER ;

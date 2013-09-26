@@ -48,6 +48,8 @@
         var touchX, touchY;
         var isBegin;
         var stats;
+        var Rectangle = p2.Rectangle;
+        var Circle = p2.Circle;
         var dd = {x:1, y:1, px:10, py:40};
         var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame
                 || window.mozRequestAnimationFrame || window.oRequestAnimationFrame
@@ -95,9 +97,9 @@
 
             world = new p2.World({ doProfiling:false, gravity : [0,10] });//
             //var initialState = world.toJSON();
-            world.solver.setSpookParams(1e5,3);
-            world.solver.iterations = 100;
-            world.solver.tolerance = 1;
+            world.solver.setSpookParams(1e4,4);
+            world.solver.iterations = 20;
+            //world.solver.tolerance = 1;
 
             var mx = STAGE_WIDTH / METER ;
             var my = STAGE_HEIGHT / METER ;
@@ -189,20 +191,12 @@
         }
 
         function addBox(pos, size) {
-         /*   var width = size.w / METER /2;
-            var height = size.h / METER /2;
-            var shape = new Box2D.b2PolygonShape();
-            var bodyDef = new Box2D.b2BodyDef();
-            bodyDef.set_type(Box2D.b2_dynamicBody);
-            bodyDef.set_position(new Box2D.b2Vec2(pos.x, pos.y));
-            var body = world.CreateBody(bodyDef);
-            var fd = new Box2D.b2FixtureDef();
-            shape.SetAsBox(width , height);
-            fd.set_shape(shape);
-            fd.set_restitution(0.3);
-            fd.set_friction(0.3);
-            fd.set_density(1.0);
-            body.CreateFixture(fd);
+            var w = size.w / METER ;
+            var h = size.h / METER ;
+            var shape = new p2.Rectangle(w,h);
+            var body = new p2.Body({ mass: 1, position: [pos.x, pos.y] });
+            body.addShape(shape);
+            world.addBody(body);
        
             var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
             stage.addChild(box);
@@ -211,7 +205,7 @@
             box.scale.y = size.h / 128;
 
             bodies.push(body);
-            actors.push(box);*/
+            actors.push(box);
         }
 
         function addCircle(pos, size) {
@@ -221,21 +215,6 @@
             body.addShape(shape);
             world.addBody(body);
 
-            /*
-            
-            var shape = new Box2D.b2CircleShape();
-            var bodyDef = new Box2D.b2BodyDef();
-            bodyDef.set_type(Box2D.b2_dynamicBody);
-            bodyDef.set_position(new Box2D.b2Vec2(pos.x, pos.y));
-            var body = world.CreateBody(bodyDef);
-            var fd = new Box2D.b2FixtureDef();
-            shape.set_m_radius(radius);
-            fd.set_shape(shape);
-            fd.set_restitution(0.3);
-            fd.set_friction(0.3);
-            fd.set_density(1.0);
-            body.CreateFixture(fd);
-*/
             var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
             stage.addChild(ball);
             ball.anchor.x = ball.anchor.y = 0.5;

@@ -1,0 +1,388 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Pixi Verlet</title>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+  </head>
+  <body>
+    <div id="content" class="unselectable"></div>
+    <div id="ribbon" style="position: absolute; top: 0; right: 0; border: none;" class="unselectable">
+        <a href="https://github.com/lo-th/crossed"><img  src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
+    </div>
+    <div id="info" class="unselectable">
+        <a href="index.html"><img id="home" src="img/home.png" onmouseover="this.src='img/home2.png'" onmouseout="this.src='img/home.png'" /></a>
+        <h3><a href="phy_b2d.html">Box2D</a></h3> vs 
+        <h3><a href="phy_b2d_c.html">Box2d c++</a></h3> vs 
+        <h3><a href="phy_chipmunk.html">Chipmunk</a></h3> vs 
+        <h3><a href="phy_p2.html" style="color:#3399FF">P2</a></h3> 
+    </div>
+    <div id="option" class="unselectable">
+        <div id='mbutton' onclick='newBox();'>BOX</div>
+        <div id='mbutton' onclick='newCircle();'>CIRCLE</div>
+        <div id='mbutton' onclick='reset();'>RESET</div>
+        <div id='mbutton' onclick='basicTest();'>60</div>
+        <div id='mbutton' onclick='stressTest();'>1000</div>
+    </div>
+    <div id="source" class="unselectable">
+        <a href="https://github.com/schteppe/p2.js" target="_blank">P2-js</a> 53 kb
+    </div>
+    <script type="text/javascript" src="js/phy/verlet-1.0.0.min.js"></script>
+    <script type="text/javascript" src="js/pixi.min.js"></script>
+    <script type="text/javascript" src="js/stats.min.js"></script>
+    <script type="text/javascript" src="js/MathTools.js"></script>
+    <script type="text/javascript">
+        var STAGE_WIDTH, STAGE_HEIGHT;
+        var METER = 100;
+        var SCALE = 4;
+        var STEP = 1/60;
+        var MAX = 60;
+
+        var mouseJointGroundBody
+        var myQueryCallback;
+        var bodies = [], actors = [];
+        var stage, renderer;
+        var world, mouseJoint;
+        var touchX, touchY;
+        var isBegin;
+        var stats;
+      // var Rectangle = p2.Rectangle;
+      //  var Circle = p2.Circle;
+        var dd = {x:1, y:1, px:10, py:40};
+        var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame
+                || window.mozRequestAnimationFrame || window.oRequestAnimationFrame
+                || window.msRequestAnimationFrame
+                || function(callback) { return window.setTimeout(callback, 1000 / 60); };
+
+        window.onload = init;
+        
+        function init() {
+            STAGE_WIDTH = 256*SCALE;
+            STAGE_HEIGHT = 128*SCALE;
+            dd.x = STAGE_WIDTH/window.innerWidth;
+
+            stage = new PIXI.Stage(0x383838, true);
+            renderer = PIXI.autoDetectRenderer(STAGE_WIDTH, STAGE_HEIGHT, null);
+
+            var content = document.getElementById('content');
+            content.appendChild(renderer.view);
+            renderer.view.style.position = "absolute";
+            renderer.view.style.top = dd.py+"px";
+            renderer.view.style.left = dd.px+"px";
+            renderer.view.style.width = window.innerWidth-20+"px";
+            renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+            renderer.view.style.border = "1px solid #222222";
+
+            stats = new Stats();
+            document.body.appendChild(stats.domElement);
+            stats.domElement.style.position = "absolute";
+            stats.domElement.style.top = "4px";
+            stats.domElement.style.left = window.innerWidth-70+"px";
+
+            var loader = new PIXI.AssetLoader(["img/ball.png", "img/box.png", "img/black.jpg"]);
+            loader.onComplete = onLoadAssets;
+            loader.load();
+
+            window.addEventListener("resize", resize, false);
+        }
+
+        
+
+        function onLoadAssets() {
+            // add background
+            var tiling = new PIXI.TilingSprite(PIXI.Texture.fromImage("img/black.jpg"), STAGE_WIDTH, STAGE_HEIGHT);
+            stage.addChild(tiling);
+
+            world =  new VerletJS(STAGE_WIDTH, STAGE_HEIGHT, renderer.view);//new p2.World({ doProfiling:false, gravity : [0,10] });//
+            world.gravity = new Vec2(0,0.3);
+        world.friction = 0.98;
+
+            // entities
+        var segment = world.lineSegments([new Vec2(20,10), new Vec2(40,10), new Vec2(60,10), new Vec2(80,10), new Vec2(100,10)], 0.02);
+        var pin = segment.pin(0);
+        var pin = segment.pin(4);
+
+        var tire1 = world.tire(new Vec2(200,50), 50, 30, 0.3, 0.9);
+        var tire2 = world.tire(new Vec2(400,50), 70, 7, 0.1, 0.2);
+        var tire3 = world.tire(new Vec2(600,50), 70, 3, 1, 1);
+
+        var p;
+
+        for(var i=0; i<100; ++i){
+            p = world.tire(new Vec2(MathTools.randomRange(0, STAGE_WIDTH) ,-MathTools.randomRange(50, 5000)), 10, 6, 0.3, 0.9);
+           // p = world.point(new Vec2(MathTools.randomRange(0, STAGE_WIDTH) ,-MathTools.randomRange(50, 5000) ));
+        }
+
+        createParticule();
+            //var initialState = world.toJSON();
+           /* world.solver.setSpookParams(1e5,3);
+            world.solver.iterations = 100;
+            //world.solver.tolerance = 1;
+
+            var mx = STAGE_WIDTH / METER ;
+            var my = STAGE_HEIGHT / METER ;
+
+            // Create ground
+            var planeShape = new p2.Plane();
+            var plane = new p2.Body({ angle:Math.PI,  position : [0, my] });
+            plane.addShape(planeShape);
+            world.addBody(plane);
+
+
+            var planeLeft = new p2.Body({ angle: -Math.PI/2, position: [0, 0] });
+            planeLeft.addShape(planeShape);
+            world.addBody(planeLeft);
+
+            var planeRight = new p2.Body({ angle: Math.PI/2, position: [mx, 0] });
+            planeRight.addShape(planeShape);
+            world.addBody(planeRight);
+
+            // add some object
+            populate();
+*/
+            /*
+            
+            
+            document.addEventListener("mousedown", function(event) {
+                isBegin = true;
+                onMove(event);
+                document.addEventListener("mousemove", onMove, true);
+            }, true);
+            
+            document.addEventListener("mouseup", function(event) {
+                document.removeEventListener("mousemove", onMove, true);
+                isBegin = false;
+                touchX = undefined;
+                touchY = undefined;
+            }, true);
+            
+            renderer.view.addEventListener("touchstart", function(event) {
+                isBegin = true;
+                onMove(event);
+                renderer.view.addEventListener("touchmove", onMove, true);
+            }, true);
+            
+            renderer.view.addEventListener("touchend", function(event) {
+                renderer.view.removeEventListener("touchmove", onMove, true);
+                isBegin = false;
+                touchX = undefined;
+                touchY = undefined;
+            }, true);
+            */
+            // start animating
+            raf(update);
+        }
+
+        function populate(n) {
+         /*   if(n) MAX = n;
+            for (var i = 0; i < MAX; i++) {
+                var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 5000) / METER};
+                var size;
+                if(MAX>100) size = { w:MathTools.randomRange(10, 30), h:MathTools.randomRange(10, 30) };
+                else size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
+
+                if (Math.random() > 0.5) addCircle(pos, size);
+                else addBox(pos, size);
+            }*/
+        }
+        
+        function basicTest() {
+            reset();
+            populate(60);
+        }
+
+        function stressTest() {
+            reset();
+            populate(1000);
+        }
+
+        function newBox() {
+            var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 100) / METER};
+            var size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
+            addBox(pos, size);
+        }
+
+        function newCircle() {
+            var pos = {x: MathTools.randomRange(0, STAGE_WIDTH) / METER, y:-MathTools.randomRange(50, 100) / METER};
+            var size = { w:MathTools.randomRange(40, 70), h:MathTools.randomRange(40, 70) };
+            addCircle(pos, size);
+        }
+
+        function addBox(pos, size) {
+            var w = size.w / METER ;
+            var h = size.h / METER ;
+            var shape = new p2.Rectangle(w,h);
+            var body = new p2.Body({ mass: 1, position: [pos.x, pos.y] });
+            body.addShape(shape);
+            world.addBody(body);
+       
+            var box = new PIXI.Sprite(PIXI.Texture.fromFrame("img/box.png"));
+            stage.addChild(box);
+            box.anchor.x = box.anchor.y = 0.5;
+            box.scale.x = size.w / 128;
+            box.scale.y = size.h / 128;
+
+            bodies.push(body);
+            actors.push(box);
+        }
+
+        function addCircle(pos, size) {
+            var radius = size.w / 2 / METER;
+            var shape = new p2.Circle(radius);
+            var body = new p2.Body({ mass: 1, position: [pos.x, pos.y] });
+            body.addShape(shape);
+            world.addBody(body);
+
+            var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
+            stage.addChild(ball);
+            ball.anchor.x = ball.anchor.y = 0.5;
+            ball.scale.x = ball.scale.y = size.w / 128;
+
+            bodies.push(body);
+            actors.push(ball);
+        }
+        
+        function getBodyAtMouse() {
+            var body;
+            var mousePos = new Box2D.b2Vec2(touchX, touchY);
+            var aabb = new Box2D.b2AABB();
+            aabb.set_lowerBound(new Box2D.b2Vec2(touchX - 0.001, touchY - 0.001));
+            aabb.set_upperBound(new Box2D.b2Vec2(touchX + 0.001, touchY + 0.001));
+
+            myQueryCallback.m_fixture = null;
+            myQueryCallback.m_point = new Box2D.b2Vec2(touchX, touchY);
+            world.QueryAABB(myQueryCallback, aabb);
+
+            if (myQueryCallback.m_fixture) body = myQueryCallback.m_fixture.GetBody();
+            return body;
+        }
+        
+        function onMove(event) {
+            if (event["changedTouches"]) {
+                var touche = event["changedTouches"][0];
+                touchX = (touche.pageX-dd.px) / METER * dd.x;
+                touchY = (touche.pageY-dd.py) / METER * dd.x;
+            } else {
+                touchX = (event.clientX-dd.px) / METER * dd.x;
+                touchY = (event.clientY-dd.py) / METER * dd.x;
+            }
+        }
+
+        var comp=[];
+        var part=[];
+
+
+        function createParticule() {
+            var i, j;
+            for(i=0; i<world.composites.length; ++i){
+                var a = [];
+                actors.push(a);
+                for(j=0; j<world.composites[i].particles.length; ++j){
+                    //t+= "c"+i+"p"+j+":"+world.composites[i].particles[j].pos.x;
+                    //t+= "/"+world.composites[i].particles[j].pos.y;
+                    var ball = new PIXI.Sprite(PIXI.Texture.fromFrame("img/ball.png"));
+            stage.addChild(ball);
+            ball.anchor.x = ball.anchor.y = 0.5;
+            ball.scale.x = ball.scale.y = 0.1;
+
+           // bodies.push(body);
+            a.push(ball);
+                }
+            }
+
+
+        }
+
+        function update() {
+
+            world.frame(16);
+
+            var i, j;
+            
+            var t;
+
+           
+            for(i=0; i<world.composites.length; ++i){
+                for(j=0; j<world.composites[i].particles.length; ++j){
+                  // t+= "c"+i+"p"+j+":"+world.composites[i].particles[j].pos.x;
+                   // t+= "/"+world.composites[i].particles[j].pos.y;
+
+
+                   actors[i][j].position.x =  world.composites[i].particles[j].pos.x;
+                   actors[i][j].position.y =  world.composites[i].particles[j].pos.y;
+                }
+            }
+
+
+             tell(actors.length)
+           // world.draw();
+            /*if(isBegin && !mouseJoint) {
+                var dragBody = getBodyAtMouse();
+                if(dragBody!= null) {
+                    var jointDef = new Box2D.b2MouseJointDef();
+                    jointDef.set_bodyA(mouseJointGroundBody);
+                    jointDef.set_bodyB(dragBody);
+                    jointDef.set_target( new Box2D.b2Vec2(touchX, touchY) );
+                    jointDef.set_maxForce( 300 * dragBody.GetMass() );
+                    jointDef.set_collideConnected(true);
+                    mouseJoint = Box2D.castObject( world.CreateJoint(jointDef), Box2D.b2MouseJoint );
+                    dragBody.SetAwake(true);
+                }
+            }
+            
+            if(mouseJoint) {
+                if(isBegin){
+                    mouseJoint.SetTarget(new Box2D.b2Vec2(touchX, touchY));
+                } else {
+                    world.DestroyJoint(mouseJoint);
+                    mouseJoint = null;
+                }
+            }*/
+            
+          /*  world.step( STEP );
+            //world.ClearForces();
+            
+            var n = actors.length;
+            for (var i = 0; i < n; i++) {
+                var body  = bodies[i];
+                var actor = actors[i];
+                //var position = body.GetPosition();
+                actor.position.x = body.position[0] * METER;
+                actor.position.y = body.position[1] * METER;
+                actor.rotation = -body.angle;
+            }
+            */
+            renderer.render(stage);
+            stats.update();
+            raf(update);
+        }
+
+        function reset(){
+            for (var i = actors.length- 1; i >= 0; i--) {
+                stage.removeChild(actors[i]);
+                world.removeBody(bodies[i]);
+                actors.splice(i,1);
+                bodies.splice(i,1);
+            }
+            bodies = [];
+            actors = [];
+            //if ( world != null ) Box2D.destroy(world);
+        }
+
+        function resize() {
+            renderer.view.style.width = window.innerWidth-20+"px";
+            renderer.view.style.height = (window.innerWidth-20)*0.5+ "px";
+            dd.x = STAGE_WIDTH/window.innerWidth;
+            stats.domElement.style.left = window.innerWidth-70+"px";
+        }
+
+        function tell(S) {
+            document.getElementById("info").innerHTML = S ;
+        }
+
+    </script>
+
+  <body/>
+</html>
